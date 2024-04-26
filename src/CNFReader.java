@@ -2,11 +2,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Scanner;
 
 public class CNFReader {
-    public static List<Integer[]> readFile(String name, boolean satisfiable){
+    public static ClauseSet readFile(String name, boolean satisfiable){
         String path = "inputs\\";
         if(satisfiable){
             path += "sat\\";
@@ -21,7 +20,7 @@ public class CNFReader {
 
     }
 
-    public static List<Integer[]> readFile(File f){
+    public static ClauseSet readFile(File f){
         Scanner tsm;
         try{
             tsm = new Scanner(f);
@@ -35,22 +34,24 @@ public class CNFReader {
 
 
 
-    public static List<Integer[]> readSATFile(String name){
+    public static ClauseSet readSATFile(String name){
         return readFile(name, true);
     }
 
-    public static List<Integer[]> readUNSATFile(String name){
+    public static ClauseSet readUNSATFile(String name){
         return readFile(name, false);
     }
 
-    private static List<Integer[]> getClauses(Scanner tsm){
+    private static ClauseSet getClauses(Scanner tsm){
         ArrayList<Integer[]> clauses = new ArrayList<>();
+        int numVars = 0;
         while(tsm.hasNextLine()){
 
             String line = tsm.nextLine();
 
             if(line.startsWith("p")){
-                //String[] args = line.split(" ");
+                String[] args = line.split(" ");
+                numVars = Integer.parseInt(args[2]);
 
             } else if(line.startsWith("c")){
                 //do nothing
@@ -69,6 +70,6 @@ public class CNFReader {
             }
 
         }
-        return clauses;
+        return new ClauseSet(clauses, numVars);
     }
 }
