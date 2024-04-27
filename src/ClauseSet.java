@@ -4,15 +4,19 @@ import java.util.List;
 public class ClauseSet {
 
     private List<Integer[]> clauses;
-    private final int numVariables;
-    public ClauseSet(List<Integer[]> clauses, int numVariables){
+    private final int numLiterals;
+    public ClauseSet(List<Integer[]> clauses, int numLiterals){
 
         this.clauses = clauses;
-        this.numVariables = numVariables;
+        this.numLiterals = numLiterals;
     }
 
-    public int getNumVariables() {
-        return numVariables;
+    public int getNumLiterals() {
+        return numLiterals;
+    }
+
+    public int getNumClauses() {
+        return clauses.size();
     }
 
 
@@ -32,11 +36,11 @@ public class ClauseSet {
     }
 
     public String toLongString(){
-        return "ClauseSet numvars=" + numVariables +"; clauses=" + toStringArrayListWithArrays(clauses);
+        return "ClauseSet numvars=" + numLiterals +"; clauses=" + toStringArrayListWithArrays(clauses);
     }
     @Override
     public String toString(){
-        return "ClauseSet numvars=" + numVariables + " numclauses=" + clauses.size();
+        return "ClauseSet numvars=" + numLiterals + " numclauses=" + clauses.size();
     }
 
     public List<Integer[]> getClauses() {

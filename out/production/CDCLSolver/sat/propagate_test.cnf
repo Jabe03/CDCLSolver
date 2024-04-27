@@ -1,0 +1,8 @@
+c CaDiCaL
+c https://github.com/arminbiere/cadical/tree/master/test/cnf
+c
+c --no-subsume
+p cnf 3 3
+1 0
+-1 2 0
+-1 -2 3 0

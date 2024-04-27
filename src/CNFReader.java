@@ -44,14 +44,14 @@ public class CNFReader {
 
     private static ClauseSet getClauses(Scanner tsm){
         ArrayList<Integer[]> clauses = new ArrayList<>();
-        int numVars = 0;
+        int numLits = 0;
         while(tsm.hasNextLine()){
 
             String line = tsm.nextLine();
 
             if(line.startsWith("p")){
                 String[] args = line.split(" ");
-                numVars = Integer.parseInt(args[2]);
+                numLits = Integer.parseInt(args[2]);
 
             } else if(line.startsWith("c")){
                 //do nothing
@@ -70,6 +70,6 @@ public class CNFReader {
             }
 
         }
-        return new ClauseSet(clauses, numVars);
+        return new ClauseSet(clauses, numLits);
     }
 }
