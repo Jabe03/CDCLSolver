@@ -60,11 +60,9 @@ public class CNFReader {
                 LinkedList<Integer> literals = new LinkedList<>();
                 while(minitsm.hasNextInt()){
                     int val = minitsm.nextInt();
-                    if(val == 0){
-                        break;
-                    }
                     literals.add(val);
                 }
+                literals.add(0);
 
                 clauses.add(literals.toArray(new Integer[0]));
             }
