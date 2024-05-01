@@ -6,7 +6,8 @@ import static java.lang.Math.max;
 
 public class CNFSolver {
 
-    private static final String DECISION_TYPE = "most_negative_occurrences";
+    private static final String[] DECISION_TYPES = new String[]{"most_positive_occurrences", "most_negative_occurences", "lowest_num"};
+    private static final String DECISION_TYPE = DECISION_TYPES[1];
     //private static final String DECISION_TYPE = "lowest_num";
     private final CNFSolution solvedLits;
     private ClauseSet cs;
@@ -30,14 +31,23 @@ public class CNFSolver {
         return solvedLits;
     }
     public void solve(){//main function to solve
+        long last = System.currentTimeMillis();
+        int numPropagations = 0;
+        int numDecisions = 0;
         if(this.cs == null){
             throw new RuntimeException("YOU SUCK YOU DIDNT USE THIS LIKE YOU SHOULD HAVE");
         }
         propagateQueue.addAll(watchedList.getPureLiterals());
         if (watchedList.isEmpty()){//checks for empty case
+
             solvedLits.setSatisfiability(false);
         }
         while(!solvedLits.isSolved()){//while the solution isn't found...
+            long now = System.currentTimeMillis();
+            if(now - last > 2500){
+                System.out.println("Decisions: " + numDecisions +", Propagations: " + numPropagations+ ", Propagations per decision: " + String.format("%.2f", ((double)numPropagations)/numDecisions));
+                last = now;
+            }
             if(!propagateQueue.isEmpty()) {//propagate if there are literals we can propagate
                 Integer litToBePropagated = propagateQueue.remove(propagateQueue.size()-1);//
 
@@ -50,29 +60,31 @@ public class CNFSolver {
                 }
                 //System.out.println(watchedList);
                 propagate(litToBePropagated);//propagate the literal
+                numPropagations++;
                 //System.out.println("After propagating " + litToBePropagated +":\n" + watchedList);
             } else {//if the propagate queue is empty, make a decision
                 Integer decision = decide();
                 if (decision == null) {//if there is no decision to be made
-
-                    if(isSolved()){//check if the solution is solved, if yes, the cnf is satisfiable
+                    if(assignmentSatisfiesClauseSet()){//check if the solution is solved, if yes, the cnf is satisfiable
                         solvedLits.setSatisfiability(true);
+                        System.out.println("Decisions: " + numDecisions +", Propagations: " + numPropagations+ ", Propagations per decision: " + String.format("%.2f", ((double)numPropagations)/numDecisions));
                         return;
                     }
                     fail();//if there are no decisions to be made and not all clauses are satisfied, fail
                     continue;
                 }
-                //System.out.println(solvedLits);
-                System.out.println("Deciding " + decision);
+                numDecisions++;
                 solvedLits.addDecisionLevel();
                 propagateQueue.add(decision);
             }
         }
 
+        System.out.println("Decisions: " + numDecisions +", Propagations: " + numPropagations+ ", Propagations per decision: " + String.format("%.2f", ((double)numPropagations)/numDecisions));
+
     }
 
 
-    private boolean isSolved(){//returns true if the solution has been found , false otherwise
+    private boolean assignmentSatisfiesClauseSet(){//returns true if the solution has been found , false otherwise
         for(Integer[] clause: cs.getClauses()){
             List<Integer> listClause = Arrays.asList(clause);
 

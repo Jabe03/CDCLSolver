@@ -1,6 +1,8 @@
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static java.lang.Math.max;
 
@@ -12,7 +14,7 @@ public class main{
     }
 
     public static void testCNFSolver(){ //main function
-        ClauseSet cs = CNFReader.readFile("full7", false);
+        ClauseSet cs = CNFReader.readFile("cnfgen-parity-9", false);
         CNFSolver solver = new CNFSolver();
         solver.setClauseSet(cs);
         long startTime = System.currentTimeMillis();
@@ -20,12 +22,8 @@ public class main{
         long endTime = System.currentTimeMillis();
         System.out.println(endTime-startTime);
         System.out.println(solver.getSolution());
-        if(solver.getSolution().satisfiability == "SAT"){
-            System.out.println(solutionSatisfies(solver.getSolution(), cs));
-        }
-        else{
-            System.out.println("false");
-        }
+        System.out.println("Formatted output: " + solver.getSolution().toFormattedString());
+
     }
 
 
@@ -35,11 +33,12 @@ public class main{
             List<Integer> clist = Arrays.asList(set.get(i));
             boolean clauseIsSat = false;
             for(Integer lit: sol){
-                if(clist.contains(lit)){
+                if (clist.contains(lit)) {
                     clauseIsSat = true;
+                    break;
                 }
             }
-            if(clauseIsSat == false){
+            if(!clauseIsSat){
                 System.out.println("Clause " + (i) + " is unsatisfied: " + clist);
                 return false;
             }

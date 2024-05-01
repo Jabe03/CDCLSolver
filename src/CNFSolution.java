@@ -63,6 +63,22 @@ public class CNFSolution implements Iterable<Integer> {
         return satisfiability.equals("UNSAT") ? "UNSAT" : satisfiability +" " + "(DL" + getHighestDecisionLevel()+")" + sol.toString();
     }
 
+    public String toFormattedString(){
+        if(satisfiability.equals("UNSAT")){
+            return "UNSAT";
+        }
+        StringBuilder b = new StringBuilder();
+        b.append("[");
+        for(ArrayList<Integer> dl: sol){
+            for(Integer lit: dl){
+                b.append(lit).append(" ");
+            }
+            b.append("* ");
+        }
+        b.delete(b.length()-2, b.length()).append("]");
+        return b.toString();
+    }
+
     public void chronologicalBacktrack(){//backtracking without use of Explain/learn. Will implement non-chronological later.
         if(sol.size() == 1){
             setSatisfiability(false);
