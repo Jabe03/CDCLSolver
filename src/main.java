@@ -11,7 +11,7 @@ public class main{
     }
 
     public static void testCNFSolver(){
-        ClauseSet cs = CNFReader.readFile("propagate_test_4", true);
+        ClauseSet cs = CNFReader.readFile("add4", false);
         CNFSolver solver = new CNFSolver();
         solver.setClauseSet(cs);
         long startTime = System.currentTimeMillis();

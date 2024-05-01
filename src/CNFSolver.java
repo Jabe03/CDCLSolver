@@ -37,8 +37,8 @@ public class CNFSolver {
 
                 Integer litToBePropagated = propagateQueue.remove(0);
                 if(solvedLits.contains(-litToBePropagated) || propagateQueue.contains(-litToBePropagated)){
-                    solvedLits.setSatisfiability(false);
-                    return;
+                    fail();
+                    continue;
                 }
                 if(solvedLits.contains(litToBePropagated) || propagateQueue.contains(litToBePropagated)){
                     continue;
@@ -47,11 +47,13 @@ public class CNFSolver {
                 propagate(litToBePropagated);
                 System.out.println("After propagating " + litToBePropagated +":\n" + watchedList);
             }
-
-
-
-
-
+            Integer decision = decide();
+            if(decision == null){
+                solvedLits.setSatisfiability(true);
+                return;
+            }
+            System.out.println("Deciding " + decision);
+            propagateQueue.add(decision);
 
 
             if(solvedLits.length() == cs.getNumLiterals()){
@@ -61,8 +63,20 @@ public class CNFSolver {
 
     }
 
+    public Integer decide(){
+        Integer decision = 1;
+        while(solvedLits.contains(decision) || solvedLits.contains(-decision)){
+            decision++;
+            if(decision > cs.getNumLiterals()){
+                return null;
+            }
+        }
+        return decision;
+    }
 
-
+    private void fail(){
+        solvedLits.chronologicalBacktrack();
+    }
     private void propagate(Integer litToBePropagated){
         solvedLits.addToLastDecisionLevel(litToBePropagated);
 

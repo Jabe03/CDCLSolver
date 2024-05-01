@@ -16,8 +16,9 @@ public class CNFSolution {
         return sol.size()-1;
     }
 
-    public void addDecisionLevel(){
+    public void addDecisionLevel(int decision){
         sol.add(new ArrayList<>());
+        addToLastDecisionLevel(decision);
     }
 
     public void setSatisfiability(boolean satisfiabile){
@@ -55,6 +56,15 @@ public class CNFSolution {
     @Override
     public String toString(){
         return satisfiability.equals("UNSAT") ? "UNSAT" : sol.toString();
+    }
+
+    public void chronologicalBacktrack(){
+        if(sol.size() == 1){
+            setSatisfiability(false);
+            return;
+        }
+        ArrayList<Integer> removedPropPath = sol.remove(sol.size()-1);
+        addToLastDecisionLevel(-removedPropPath.get(0));
     }
 
 }
