@@ -16,9 +16,8 @@ public class CNFSolution {
         return sol.size()-1;
     }
 
-    public void addDecisionLevel(int decision){
+    public void addDecisionLevel(){
         sol.add(new ArrayList<>());
-        addToLastDecisionLevel(decision);
     }
 
     public void setSatisfiability(boolean satisfiabile){
