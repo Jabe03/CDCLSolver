@@ -105,6 +105,23 @@ public class WatchedList {
         return getClausesWithWatchedLit(watchedLit).contains(clauseIndex);
     }
 
+    public boolean isEmpty() {//checks for empty case (no literals)
+        // Check positive watched list
+        for (ArrayList<Integer> list : positiveWatched) {
+            if (!list.isEmpty()) {
+                return false;
+            }
+        }
+
+        // Check negative watched list
+        for (ArrayList<Integer> list : negativeWatched) {
+            if (!list.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
 //    public void removeFromIndex(int index, Integer element){
 //        get(index).re

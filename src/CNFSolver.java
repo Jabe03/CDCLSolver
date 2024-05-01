@@ -6,7 +6,7 @@ import static java.lang.Math.max;
 
 public class CNFSolver {
 
-    private static final String DECISION_TYPE = "most_positive_occurrences";
+    private static final String DECISION_TYPE = "most_negative_occurrences";
     //private static final String DECISION_TYPE = "lowest_num";
     private final CNFSolution solvedLits;
     private ClauseSet cs;
@@ -14,7 +14,7 @@ public class CNFSolver {
 
     private  ArrayList<Integer> propagateQueue;
 
-    private boolean[] solvedClauses;
+    //private boolean[] solvedClauses;
 
     public CNFSolver(){
         this.solvedLits = new CNFSolution();
@@ -29,26 +29,29 @@ public class CNFSolver {
     public CNFSolution getSolution(){
         return solvedLits;
     }
-    public void solve(){
+    public void solve(){//main function to solve
         if(this.cs == null){
             throw new RuntimeException("YOU SUCK YOU DIDNT USE THIS LIKE YOU SHOULD HAVE");
         }
         propagateQueue.addAll(watchedList.getPureLiterals());
-        while(!solvedLits.isSolved()){
-            if(!propagateQueue.isEmpty()) {
-                Integer litToBePropagated = propagateQueue.remove(propagateQueue.size()-1);
+        if (watchedList.isEmpty()){//checks for empty case
+            solvedLits.setSatisfiability(false);
+        }
+        while(!solvedLits.isSolved()){//while the solution isn't found...
+            if(!propagateQueue.isEmpty()) {//propagate if there are literals we can propagate
+                Integer litToBePropagated = propagateQueue.remove(propagateQueue.size()-1);//
 
-                if(solvedLits.contains(-litToBePropagated) || propagateQueue.contains(-litToBePropagated)){
+                if(solvedLits.contains(-litToBePropagated)){//if complement of literal is within solution, fail
                     fail();
                     continue;
                 }
-                if(solvedLits.contains(litToBePropagated) || propagateQueue.contains(litToBePropagated)){
+                if(solvedLits.contains(litToBePropagated)){//if literal is already in solution, do not propagate
                     continue;
                 }
                 //System.out.println(watchedList);
                 propagate(litToBePropagated);
                 //System.out.println("After propagating " + litToBePropagated +":\n" + watchedList);
-            } else{
+            } else{//if the propagate queue is empty, make a decision
                 Integer decision = decide();
                 if (decision == null) {
 
@@ -60,7 +63,7 @@ public class CNFSolver {
                     continue;
                 }
                 //System.out.println(solvedLits);
-                //System.out.println("Deciding " + decision);
+                System.out.println("Deciding " + decision);
                 solvedLits.addDecisionLevel();
                 propagateQueue.add(decision);
             }
@@ -69,7 +72,7 @@ public class CNFSolver {
     }
 
 
-    private boolean isSolved(){
+    private boolean isSolved(){//returns true if the solution has been found , false otherwise
         for(Integer[] clause: cs.getClauses()){
             List<Integer> listClause = Arrays.asList(clause);
 
@@ -86,10 +89,10 @@ public class CNFSolver {
         }
         return true;
     }
-    public Integer decide(){
+    public Integer decide(){//Pick which value it is we want to guess/decide
         Integer decision = 0;
         switch(DECISION_TYPE) {
-            case "lowest_num": {
+            case "lowest_num": {//decide the lowest number first
                 decision = 1;
                 while (solvedLits.contains(decision) || solvedLits.contains(-decision)) {
                     decision++;
@@ -99,11 +102,11 @@ public class CNFSolver {
                 }
                 return decision;
             }
-            case "most_negative_occurrences": {
+            case "most_negative_occurrences": {//decide the complement of the value which occurs the most in current watched literals
 
                 int highestOccurrence = 0;
                 for(int i = -cs.getNumLiterals(); i < cs.getNumLiterals(); i++){
-                    if(i ==0){
+                    if(i == 0){
                         continue;
                     }
                     int occurrences = watchedList.getClausesWithWatchedLit(i).size();
@@ -114,7 +117,7 @@ public class CNFSolver {
                 }
                 return decision == 0 ? null : -decision;
             }
-            case "most_positive_occurrences": {
+            case "most_positive_occurrences": {//decide the value which occurs the most in current watched literals
 
                 int highestOccurrence = 0;
                 for(int i = -cs.getNumLiterals(); i < cs.getNumLiterals(); i++){
@@ -134,7 +137,7 @@ public class CNFSolver {
 
     }
 
-    private void fail(){
+    private void fail(){//remove
         //System.out.println("Backtracking");
         solvedLits.chronologicalBacktrack();
         propagateQueue.clear();

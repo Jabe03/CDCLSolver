@@ -13,20 +13,20 @@ public class CNFSolution implements Iterable<Integer> {
         satisfiability = "undetermined";
     }
 
-    public int getHighestDecisionLevel(){
+    public int getHighestDecisionLevel(){//returns highest decision level
         return sol.size()-1;
     }
 
-    public Integer getLastOfLastDecisionLevel(){
+    public Integer getLastOfLastDecisionLevel(){//returns the final value of the highest decision level
         ArrayList<Integer> highestDL = sol.get(getHighestDecisionLevel());
         return highestDL.get(highestDL.size()-1);
     }
 
-    public void addDecisionLevel(){
+    public void addDecisionLevel(){//when a decision is made, add decision level
         sol.add(new ArrayList<>());
     }
 
-    public void setSatisfiability(boolean satisfiabile){
+    public void setSatisfiability(boolean satisfiabile){ //set satisfiability of our solution
         if(satisfiabile){
             satisfiability = "SAT";
         } else {
@@ -34,24 +34,24 @@ public class CNFSolution implements Iterable<Integer> {
         }
     }
 
-    public void addToLastDecisionLevel(int e){
+    public void addToLastDecisionLevel(int e){ //call when propagating our decision
         sol.get(sol.size()-1).add(e);
     }
-    public int length(){
+    public int length(){ //return total number of literals in all decision levels
         int totalLength = 0;
         for(ArrayList<Integer> dl: sol){
             totalLength += dl.size();
         }
         return totalLength;
     }
-    public ArrayList<Integer> getDecisionLevel(int i){
+    public ArrayList<Integer> getDecisionLevel(int i){ //return current decision level
         return sol.get(i);
     }
 
-    public boolean isSolved(){
+    public boolean isSolved(){ //checks if solution is SAT or UNSAT and returns that value
         return satisfiability.equals("SAT") || satisfiability.equals("UNSAT");
     }
-    public boolean contains(Integer lit){
+    public boolean contains(Integer lit){//checks if a literal exists in any decision level
         boolean isContained = false;
         for(ArrayList<Integer> decisionLevel: sol){
             isContained = isContained || decisionLevel.contains(lit);
@@ -59,7 +59,7 @@ public class CNFSolution implements Iterable<Integer> {
         return isContained;
     }
     @Override
-    public String toString(){
+    public String toString(){//converts
         return satisfiability.equals("UNSAT") ? "UNSAT" : satisfiability +" " + "(DL" + getHighestDecisionLevel()+")" + sol.toString();
     }
 

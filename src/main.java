@@ -11,8 +11,8 @@ public class main{
 
     }
 
-    public static void testCNFSolver(){
-        ClauseSet cs = CNFReader.readFile("uf20-0104", true);
+    public static void testCNFSolver(){ //main function
+        ClauseSet cs = CNFReader.readFile("false", false);
         CNFSolver solver = new CNFSolver();
         solver.setClauseSet(cs);
         long startTime = System.currentTimeMillis();
@@ -20,12 +20,17 @@ public class main{
         long endTime = System.currentTimeMillis();
         System.out.println(endTime-startTime);
         System.out.println(solver.getSolution());
-        System.out.println(solutionSatisfies(solver.getSolution(), cs));
+        if(solver.getSolution().satisfiability == "SAT"){
+            System.out.println(solutionSatisfies(solver.getSolution(), cs));
+        }
+        else{
+            System.out.println("false");
+        }
     }
 
 
-    public static boolean solutionSatisfies(CNFSolution sol, ClauseSet clasueSet){
-        List<Integer[]> set = clasueSet.getClauses();
+    public static boolean solutionSatisfies(CNFSolution sol, ClauseSet clauseSet){ //checks to make sure solution provided satisfies all clauses
+        List<Integer[]> set = clauseSet.getClauses();
         for(int i  = 0; i < set.size(); i++){
             List<Integer> clist = Arrays.asList(set.get(i));
             boolean clauseIsSat = false;
