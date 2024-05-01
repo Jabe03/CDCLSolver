@@ -30,36 +30,37 @@ public class CNFSolver {
         if(this.cs == null){
             throw new RuntimeException("YOU SUCK YOU DIDNT USE THIS LIKE YOU SHOULD HAVE");
         }
-        propagateQueue.addAll(watchedList.getPureLiterals());
-        while(!solvedLits.isSolved()) {
-            if (!propagateQueue.isEmpty()) {
+
+        while(!solvedLits.isSolved()){
+            propagateQueue.addAll(watchedList.getPureLiterals());
+            while(!propagateQueue.isEmpty()) {
 
                 Integer litToBePropagated = propagateQueue.remove(0);
-                if (solvedLits.contains(-litToBePropagated) || propagateQueue.contains(-litToBePropagated)) {
+                if(solvedLits.contains(-litToBePropagated) || propagateQueue.contains(-litToBePropagated)){
                     fail();
                     continue;
                 }
-                if (solvedLits.contains(litToBePropagated) || propagateQueue.contains(litToBePropagated)) {
+                if(solvedLits.contains(litToBePropagated) || propagateQueue.contains(litToBePropagated)){
                     continue;
                 }
                 System.out.println(watchedList);
                 propagate(litToBePropagated);
-                System.out.println("After propagating " + litToBePropagated + ":\n" + watchedList);
-            } else {
-                Integer decision = decide();
-                if (decision == null) {
-                    solvedLits.setSatisfiability(true);
-                    return;
-                }
-                System.out.println("Deciding " + decision);
-                propagateQueue.add(decision);
+                System.out.println("After propagating " + litToBePropagated +":\n" + watchedList);
+            }
+            Integer decision = decide();
+            if(decision == null){
+                solvedLits.setSatisfiability(true);
+                return;
+            }
+            System.out.println("Deciding " + decision);
+            propagateQueue.add(decision);
 
 
-                if (solvedLits.length() == cs.getNumLiterals()) {
-                    solvedLits.setSatisfiability(true);
-                }
+            if(solvedLits.length() == cs.getNumLiterals()){
+                solvedLits.setSatisfiability(true);
             }
         }
+
     }
 
     public Integer decide(){
