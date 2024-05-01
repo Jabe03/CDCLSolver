@@ -60,7 +60,7 @@ public class CNFSolution implements Iterable<Integer> {
     }
     @Override
     public String toString(){
-        return satisfiability.equals("UNSAT") ? "UNSAT" : satisfiability +" " + sol.toString();
+        return satisfiability.equals("UNSAT") ? "UNSAT" : satisfiability +" " + "(DL" + getHighestDecisionLevel()+")" + sol.toString();
     }
 
     public void chronologicalBacktrack(){

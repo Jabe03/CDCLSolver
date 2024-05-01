@@ -6,7 +6,8 @@ import static java.lang.Math.max;
 
 public class CNFSolver {
 
-    private static final String DECISION_TYPE = /*"lowest_num" */"most_negative_occurrences";
+    private static final String DECISION_TYPE = "most_positive_occurrences";
+    //private static final String DECISION_TYPE = "lowest_num";
     private final CNFSolution solvedLits;
     private ClauseSet cs;
     private WatchedList watchedList;
@@ -58,7 +59,8 @@ public class CNFSolver {
                     fail();
                     continue;
                 }
-                System.out.println("Deciding " + decision);
+                //System.out.println(solvedLits);
+                //System.out.println("Deciding " + decision);
                 solvedLits.addDecisionLevel();
                 propagateQueue.add(decision);
             }
@@ -111,6 +113,21 @@ public class CNFSolver {
                     }
                 }
                 return decision == 0 ? null : -decision;
+            }
+            case "most_positive_occurrences": {
+
+                int highestOccurrence = 0;
+                for(int i = -cs.getNumLiterals(); i < cs.getNumLiterals(); i++){
+                    if(i ==0){
+                        continue;
+                    }
+                    int occurrences = watchedList.getClausesWithWatchedLit(i).size();
+                    if(occurrences > highestOccurrence && !solvedLits.contains(i) && !solvedLits.contains(-i)){
+                        highestOccurrence = occurrences;
+                        decision = i;
+                    }
+                }
+                return decision == 0 ? null : decision;
             }
             default: return null;
         }

@@ -12,7 +12,7 @@ public class main{
     }
 
     public static void testCNFSolver(){
-        ClauseSet cs = CNFReader.readFile("uuf100-010", false);
+        ClauseSet cs = CNFReader.readFile("uf20-0104", true);
         CNFSolver solver = new CNFSolver();
         solver.setClauseSet(cs);
         long startTime = System.currentTimeMillis();
