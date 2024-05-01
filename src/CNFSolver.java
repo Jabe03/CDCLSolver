@@ -41,7 +41,7 @@ public class CNFSolver {
             if(!propagateQueue.isEmpty()) {//propagate if there are literals we can propagate
                 Integer litToBePropagated = propagateQueue.remove(propagateQueue.size()-1);//
 
-                if(solvedLits.contains(-litToBePropagated)){//if complement of literal is within solution, fail
+                if(solvedLits.contains(-litToBePropagated)){//if complement of literal is within solution, fail. Do not propagate
                     fail();
                     continue;
                 }
@@ -49,17 +49,17 @@ public class CNFSolver {
                     continue;
                 }
                 //System.out.println(watchedList);
-                propagate(litToBePropagated);
+                propagate(litToBePropagated);//propagate the literal
                 //System.out.println("After propagating " + litToBePropagated +":\n" + watchedList);
-            } else{//if the propagate queue is empty, make a decision
+            } else {//if the propagate queue is empty, make a decision
                 Integer decision = decide();
-                if (decision == null) {
+                if (decision == null) {//if there is no decision to be made
 
-                    if(isSolved()){
+                    if(isSolved()){//check if the solution is solved, if yes, the cnf is satisfiable
                         solvedLits.setSatisfiability(true);
                         return;
                     }
-                    fail();
+                    fail();//if there are no decisions to be made and not all clauses are satisfied, fail
                     continue;
                 }
                 //System.out.println(solvedLits);
@@ -137,12 +137,12 @@ public class CNFSolver {
 
     }
 
-    private void fail(){//remove
+    private void fail(){//Clear propagate queue if failed and backtrack
         //System.out.println("Backtracking");
         solvedLits.chronologicalBacktrack();
         propagateQueue.clear();
     }
-    private void propagate(Integer litToBePropagated){
+    private void propagate(Integer litToBePropagated){//propagate a literal
         solvedLits.addToLastDecisionLevel(litToBePropagated);
         for(Integer clauseIndex: new ArrayList<>(watchedList.getClausesWithWatchedLit(-litToBePropagated))){
             Integer newLitToBeWatched = 0;
@@ -154,11 +154,11 @@ public class CNFSolver {
                         !watchedList.contains(clauseIndex,  newLitToBeWatched) &&
                                 !propagateQueue.contains(-newLitToBeWatched) &&
                                 !solvedLits.contains(-newLitToBeWatched)
-                ){
+                ){//if the literal isn't already watched in this claues and the complement isn't in the queue or solution, shift watched lit.
                     changesMade = true;
                     break;
                 }
-                if(i == clause.length - 1){
+                if(i == clause.length - 1){//if no literals are available to be watched, add the other variable watched to the propagate queue
                     ArrayList<Integer> potentialLitsToPropagate = new ArrayList<>(watchedList.getWatchedLitsInClause(clauseIndex));
                     potentialLitsToPropagate.remove(Integer.valueOf(-litToBePropagated));
 
@@ -166,7 +166,7 @@ public class CNFSolver {
 
                 }
             }
-            if(changesMade) {
+            if(changesMade) {//if a watched literal switches, changed watchedlist to represent that
                 watchedList.removeWatched(clauseIndex, -litToBePropagated);
                 watchedList.addWatched(clauseIndex, newLitToBeWatched);
             }

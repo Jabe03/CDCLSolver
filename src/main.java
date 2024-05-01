@@ -12,7 +12,7 @@ public class main{
     }
 
     public static void testCNFSolver(){ //main function
-        ClauseSet cs = CNFReader.readFile("false", false);
+        ClauseSet cs = CNFReader.readFile("full7", false);
         CNFSolver solver = new CNFSolver();
         solver.setClauseSet(cs);
         long startTime = System.currentTimeMillis();

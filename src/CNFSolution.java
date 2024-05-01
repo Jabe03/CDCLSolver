@@ -59,11 +59,11 @@ public class CNFSolution implements Iterable<Integer> {
         return isContained;
     }
     @Override
-    public String toString(){//converts
+    public String toString(){//converts solution into something that can be printed
         return satisfiability.equals("UNSAT") ? "UNSAT" : satisfiability +" " + "(DL" + getHighestDecisionLevel()+")" + sol.toString();
     }
 
-    public void chronologicalBacktrack(){
+    public void chronologicalBacktrack(){//backtracking without use of Explain/learn. Will implement non-chronological later.
         if(sol.size() == 1){
             setSatisfiability(false);
             return;
@@ -73,7 +73,7 @@ public class CNFSolution implements Iterable<Integer> {
     }
 
     @Override
-    public Iterator iterator() {
+    public Iterator iterator() { //flattens the solution into one array
         ArrayList<Integer> result  = new ArrayList<>();
         for(ArrayList<Integer> dl : sol){
             result.addAll(dl);
