@@ -6,6 +6,18 @@ import static java.lang.Math.max;
 public class main{
 
     public static void main(String[] args){
-        CNFSolver.solve(CNFReader.readFile("propagate_test", true));
+        testCNFSolver();
+
+    }
+
+    public static void testCNFSolver(){
+        ClauseSet cs = CNFReader.readFile("propagate_test_4", true);
+        CNFSolver solver = new CNFSolver();
+        solver.setClauseSet(cs);
+        long startTime = System.currentTimeMillis();
+        solver.solve();
+        long endTime = System.currentTimeMillis();
+        System.out.println(endTime-startTime);
+        System.out.println(solver.getSolution());
     }
 }

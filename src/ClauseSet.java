@@ -11,6 +11,10 @@ public class ClauseSet {
         this.numLiterals = numLiterals;
     }
 
+    public Integer[] getClause(Integer clause) {
+        return clauses.get(clause);
+    }
+
     public int getNumLiterals() {
         return numLiterals;
     }
@@ -18,6 +22,7 @@ public class ClauseSet {
     public int getNumClauses() {
         return clauses.size();
     }
+
 
 
     public static <E> String toStringArrayListWithArrays(List<E[]> list){
