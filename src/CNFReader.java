@@ -63,8 +63,10 @@ public class CNFReader {
                     if(val!= 0)
                         literals.add(val);
                 }
+                if(literals.size() != 0){
+                    clauses.add(literals.toArray(new Integer[0]));
 
-                clauses.add(literals.toArray(new Integer[0]));
+                }
             }
 
         }

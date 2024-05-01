@@ -1,6 +1,7 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public class CNFSolution {
+public class CNFSolution implements Iterable<Integer> {
 
     private ArrayList<ArrayList<Integer>> sol;
 
@@ -14,6 +15,11 @@ public class CNFSolution {
 
     public int getHighestDecisionLevel(){
         return sol.size()-1;
+    }
+
+    public Integer getLastOfLastDecisionLevel(){
+        ArrayList<Integer> highestDL = sol.get(getHighestDecisionLevel());
+        return highestDL.get(highestDL.size()-1);
     }
 
     public void addDecisionLevel(){
@@ -54,7 +60,7 @@ public class CNFSolution {
     }
     @Override
     public String toString(){
-        return satisfiability.equals("UNSAT") ? "UNSAT" : sol.toString();
+        return satisfiability.equals("UNSAT") ? "UNSAT" : satisfiability +" " + sol.toString();
     }
 
     public void chronologicalBacktrack(){
@@ -66,4 +72,12 @@ public class CNFSolution {
         addToLastDecisionLevel(-removedPropPath.get(0));
     }
 
+    @Override
+    public Iterator iterator() {
+        ArrayList<Integer> result  = new ArrayList<>();
+        for(ArrayList<Integer> dl : sol){
+            result.addAll(dl);
+        }
+        return result.iterator();
+    }
 }

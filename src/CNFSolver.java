@@ -1,10 +1,12 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.Math.max;
 
 public class CNFSolver {
 
+    private static final String DECISION_TYPE = /*"lowest_num" */"most_negative_occurrences";
     private final CNFSolution solvedLits;
     private ClauseSet cs;
     private WatchedList watchedList;
@@ -33,7 +35,8 @@ public class CNFSolver {
         propagateQueue.addAll(watchedList.getPureLiterals());
         while(!solvedLits.isSolved()){
             if(!propagateQueue.isEmpty()) {
-                Integer litToBePropagated = propagateQueue.remove(0);
+                Integer litToBePropagated = propagateQueue.remove(propagateQueue.size()-1);
+
                 if(solvedLits.contains(-litToBePropagated) || propagateQueue.contains(-litToBePropagated)){
                     fail();
                     continue;
@@ -47,42 +50,80 @@ public class CNFSolver {
             } else{
                 Integer decision = decide();
                 if (decision == null) {
-                    solvedLits.setSatisfiability(true);
-                    return;
+
+                    if(isSolved()){
+                        solvedLits.setSatisfiability(true);
+                        return;
+                    }
+                    fail();
+                    continue;
                 }
                 System.out.println("Deciding " + decision);
                 solvedLits.addDecisionLevel();
                 propagateQueue.add(decision);
-
-
-                if (solvedLits.length() == cs.getNumLiterals()) {
-                    solvedLits.setSatisfiability(true);
-                }
             }
         }
 
     }
 
-    public Integer decide(){
-        Integer decision = 1;
-        while(solvedLits.contains(decision) || solvedLits.contains(-decision)){
-            decision++;
-            if(decision > cs.getNumLiterals()){
-                return null;
+
+    private boolean isSolved(){
+        for(Integer[] clause: cs.getClauses()){
+            List<Integer> listClause = Arrays.asList(clause);
+
+            boolean isSatisfied = false;
+            for(Integer solvedLit: solvedLits){
+                if(listClause.contains(solvedLit)){
+                    isSatisfied = true;
+                    break;
+                }
+            }
+            if(!isSatisfied){
+                return false;
             }
         }
-        return decision;
+        return true;
+    }
+    public Integer decide(){
+        Integer decision = 0;
+        switch(DECISION_TYPE) {
+            case "lowest_num": {
+                decision = 1;
+                while (solvedLits.contains(decision) || solvedLits.contains(-decision)) {
+                    decision++;
+                    if (decision > cs.getNumLiterals()) {
+                        return null;
+                    }
+                }
+                return decision;
+            }
+            case "most_negative_occurrences": {
+
+                int highestOccurrence = 0;
+                for(int i = -cs.getNumLiterals(); i < cs.getNumLiterals(); i++){
+                    if(i ==0){
+                        continue;
+                    }
+                    int occurrences = watchedList.getClausesWithWatchedLit(i).size();
+                    if(occurrences > highestOccurrence && !solvedLits.contains(i) && !solvedLits.contains(-i)){
+                        highestOccurrence = occurrences;
+                        decision = i;
+                    }
+                }
+                return decision == 0 ? null : -decision;
+            }
+            default: return null;
+        }
+
     }
 
     private void fail(){
-        System.out.println("Backtracking");
+        //System.out.println("Backtracking");
         solvedLits.chronologicalBacktrack();
+        propagateQueue.clear();
     }
     private void propagate(Integer litToBePropagated){
         solvedLits.addToLastDecisionLevel(litToBePropagated);
-
-        System.out.println(solvedLits);
-        //System.out.println();
         for(Integer clauseIndex: new ArrayList<>(watchedList.getClausesWithWatchedLit(-litToBePropagated))){
             Integer newLitToBeWatched = 0;
             Integer[] clause = cs.getClause(clauseIndex);
@@ -100,6 +141,7 @@ public class CNFSolver {
                 if(i == clause.length - 1){
                     ArrayList<Integer> potentialLitsToPropagate = new ArrayList<>(watchedList.getWatchedLitsInClause(clauseIndex));
                     potentialLitsToPropagate.remove(Integer.valueOf(-litToBePropagated));
+
                     propagateQueue.add(potentialLitsToPropagate.get(0));
 
                 }
