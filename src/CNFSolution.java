@@ -10,7 +10,7 @@ public class CNFSolution implements Iterable<Integer> {
     public CNFSolution(){
         sol = new ArrayList<>();
         sol.add(new ArrayList<>());
-        satisfiability = "undetermined";
+        satisfiability = "undecided";
     }
 
     public int getHighestDecisionLevel(){//returns highest decision level
@@ -60,10 +60,6 @@ public class CNFSolution implements Iterable<Integer> {
     }
     @Override
     public String toString(){//converts solution into something that can be printed
-        return satisfiability.equals("UNSAT") ? "UNSAT" : satisfiability +" " + "(DL" + getHighestDecisionLevel()+")" + sol.toString();
-    }
-
-    public String toFormattedString(){
         if(satisfiability.equals("UNSAT")){
             return "UNSAT";
         }
@@ -76,6 +72,32 @@ public class CNFSolution implements Iterable<Integer> {
             b.append("* ");
         }
         b.delete(b.length()-3, b.length()).append("]");
+        return b.toString();
+    }
+
+    public String toFormattedString(){
+        StringBuilder b = new StringBuilder();
+        b.append("s ");
+
+        switch (satisfiability){
+            case "SAT" -> b.append("SATISFIABLE");
+            case "UNSAT" -> b.append("UNSATISFIABLE");
+            case "undecided"-> b.append("UNKNOWN");
+            default -> b.append("AIHJKEGBWIASEGHVBSNDFOXKLCGVBHJSNDIDGKVBHGSZDESBRDFXICVK ZHXDBFXIVKM XZSDHBFIVBKZSHDGFHXVBIZKMWHJSRBGVIZSDUKJRFDHGVBJN");
+        }
+
+        b.append("\n");
+        if(satisfiability.equals("SAT")){
+            b.append("v ");
+            for(Integer lit: this){
+                b.append(lit).append(" ");
+            }
+        }
+        b.delete(b.length()-1, b.length()).append("\n");
+
+        if(satisfiability.equals("undecided")){
+            b.append("c Timed out in ").append(CNFSolver.TIMEOUT).append("ms\n");
+        }
         return b.toString();
     }
 

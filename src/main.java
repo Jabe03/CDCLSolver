@@ -14,7 +14,7 @@ public class main{
 
             testCNFSolver(args[0]);
         } else{
-            testCNFSolver("add4");
+            testCNFSolver("add64");
         }
 
 
@@ -29,7 +29,7 @@ public class main{
         long endTime = System.currentTimeMillis();
         System.out.println(endTime-startTime);
         System.out.println(solver.getSolution());
-        System.out.println("Formatted output: " + solver.getSolution().toFormattedString());
+        System.out.println(solver.getSolution().toFormattedString());
 
     }
 

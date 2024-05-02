@@ -6,6 +6,7 @@ import static java.lang.Math.max;
 
 public class CNFSolver {
 
+    public static long TIMEOUT = 5000L;
     private static final String[] DECISION_TYPES = new String[]{"most_positive_occurrences", "most_negative_occurrences", "lowest_num"};
     private static final String DECISION_TYPE = DECISION_TYPES[2];
     //private static final String DECISION_TYPE = "lowest_num";
@@ -30,8 +31,28 @@ public class CNFSolver {
     public CNFSolution getSolution(){
         return solvedLits;
     }
+
+    private boolean assignmentSatisfiesClauseSet(){//returns true if the solution has been found , false otherwise
+        for(Integer[] clause: cs.getClauses()){
+            List<Integer> listClause = Arrays.asList(clause);
+
+            boolean isSatisfied = false;
+            for(Integer solvedLit: solvedLits){
+                if(listClause.contains(solvedLit)){
+                    isSatisfied = true;
+                    break;
+                }
+            }
+            if(!isSatisfied){
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void solve(){//main function to solve
         long last = System.currentTimeMillis();
+        long start = last;
         int numPropagations = 0;
         int numDecisions = 0;
         if(this.cs == null){
@@ -43,7 +64,11 @@ public class CNFSolver {
             solvedLits.setSatisfiability(false);
         }
         while(!solvedLits.isSolved()){//while the solution isn't found...
+
             long now = System.currentTimeMillis();
+            if(now -start > TIMEOUT ){
+                return;
+            }
             if(now - last > 2500){
                 System.out.println("Decisions: " + numDecisions +", Propagations: " + numPropagations+ ", Propagations per decision: " + String.format("%.2f", ((double)numPropagations)/numDecisions));
                 last = now;
@@ -81,25 +106,6 @@ public class CNFSolver {
 
         System.out.println("Decisions: " + numDecisions +", Propagations: " + numPropagations+ ", Propagations per decision: " + String.format("%.2f", ((double)numPropagations)/numDecisions));
 
-    }
-
-
-    private boolean assignmentSatisfiesClauseSet(){//returns true if the solution has been found , false otherwise
-        for(Integer[] clause: cs.getClauses()){
-            List<Integer> listClause = Arrays.asList(clause);
-
-            boolean isSatisfied = false;
-            for(Integer solvedLit: solvedLits){
-                if(listClause.contains(solvedLit)){
-                    isSatisfied = true;
-                    break;
-                }
-            }
-            if(!isSatisfied){
-                return false;
-            }
-        }
-        return true;
     }
     public Integer decide(){//Pick which value it is we want to guess/decide
         Integer decision = 0;
