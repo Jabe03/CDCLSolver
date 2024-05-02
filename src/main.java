@@ -14,9 +14,19 @@ public class main{
 
             testCNFSolver(args[0]);
         } else{
-            testCNFSolver("add64");
-        }
+            String[] samples = new String[]{
+                    "e",
+                    "elimredundant",
+                    "block0",
+                    "full1",
+                    "false",
+                    "cnfgen-php-5-4"
+            };
 
+            for(String fileName: samples){
+                testCNFSolver(fileName);
+            }
+        }
 
     }
 
@@ -24,12 +34,12 @@ public class main{
         ClauseSet cs = CNFReader.readFile(name);
         CNFSolver solver = new CNFSolver();
         solver.setClauseSet(cs);
+        System.out.println("Solving " + name);
         long startTime = System.currentTimeMillis();
         solver.solve();
         long endTime = System.currentTimeMillis();
-        System.out.println(endTime-startTime);
-        System.out.println(solver.getSolution());
         System.out.println(solver.getSolution().toFormattedString());
+        System.out.println("Solved in " + (endTime-startTime) + "ms\n");
 
     }
 

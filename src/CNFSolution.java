@@ -93,10 +93,10 @@ public class CNFSolution implements Iterable<Integer> {
                 b.append(lit).append(" ");
             }
         }
-        b.delete(b.length()-1, b.length()).append("\n");
+        b.delete(b.length()-1, b.length());
 
         if(satisfiability.equals("undecided")){
-            b.append("c Timed out in ").append(CNFSolver.TIMEOUT).append("ms\n");
+            b.append("\nc Timed out in ").append(CNFSolver.TIMEOUT).append("ms");
         }
         return b.toString();
     }

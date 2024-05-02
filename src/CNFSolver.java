@@ -70,7 +70,7 @@ public class CNFSolver {
                 return;
             }
             if(now - last > 2500){
-                System.out.println("Decisions: " + numDecisions +", Propagations: " + numPropagations+ ", Propagations per decision: " + String.format("%.2f", ((double)numPropagations)/numDecisions));
+                //System.out.println("Decisions: " + numDecisions +", Propagations: " + numPropagations+ ", Propagations per decision: " + String.format("%.2f", ((double)numPropagations)/numDecisions));
                 last = now;
             }
             if(!propagateQueue.isEmpty()) {//propagate if there are literals we can propagate
@@ -92,7 +92,7 @@ public class CNFSolver {
                 if (decision == null) {//if there is no decision to be made
                     if(assignmentSatisfiesClauseSet()){//check if the solution is solved, if yes, the cnf is satisfiable
                         solvedLits.setSatisfiability(true);
-                        System.out.println("Decisions: " + numDecisions +", Propagations: " + numPropagations+ ", Propagations per decision: " + String.format("%.2f", ((double)numPropagations)/numDecisions));
+                        //System.out.println("Decisions: " + numDecisions +", Propagations: " + numPropagations+ ", Propagations per decision: " + String.format("%.2f", ((double)numPropagations)/numDecisions));
                         return;
                     }
                     fail();//if there are no decisions to be made and not all clauses are satisfied, fail
@@ -104,7 +104,7 @@ public class CNFSolver {
             }
         }
 
-        System.out.println("Decisions: " + numDecisions +", Propagations: " + numPropagations+ ", Propagations per decision: " + String.format("%.2f", ((double)numPropagations)/numDecisions));
+        //System.out.println("Decisions: " + numDecisions +", Propagations: " + numPropagations+ ", Propagations per decision: " + String.format("%.2f", ((double)numPropagations)/numDecisions));
 
     }
     public Integer decide(){//Pick which value it is we want to guess/decide
