@@ -75,7 +75,7 @@ public class CNFSolution implements Iterable<Integer> {
             }
             b.append("* ");
         }
-        b.delete(b.length()-2, b.length()).append("]");
+        b.delete(b.length()-3, b.length()).append("]");
         return b.toString();
     }
 
@@ -89,7 +89,7 @@ public class CNFSolution implements Iterable<Integer> {
     }
 
     @Override
-    public Iterator iterator() { //flattens the solution into one array
+    public Iterator<Integer> iterator() { //flattens the solution into one array
         ArrayList<Integer> result  = new ArrayList<>();
         for(ArrayList<Integer> dl : sol){
             result.addAll(dl);

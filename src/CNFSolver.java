@@ -6,8 +6,8 @@ import static java.lang.Math.max;
 
 public class CNFSolver {
 
-    private static final String[] DECISION_TYPES = new String[]{"most_positive_occurrences", "most_negative_occurences", "lowest_num"};
-    private static final String DECISION_TYPE = DECISION_TYPES[1];
+    private static final String[] DECISION_TYPES = new String[]{"most_positive_occurrences", "most_negative_occurrences", "lowest_num"};
+    private static final String DECISION_TYPE = DECISION_TYPES[2];
     //private static final String DECISION_TYPE = "lowest_num";
     private final CNFSolution solvedLits;
     private ClauseSet cs;
@@ -144,7 +144,7 @@ public class CNFSolver {
                 }
                 return decision == 0 ? null : decision;
             }
-            default: return null;
+            default: throw new RuntimeException("Unsupported decision procedure: " + DECISION_TYPE);
         }
 
     }

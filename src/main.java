@@ -14,7 +14,7 @@ public class main{
     }
 
     public static void testCNFSolver(){ //main function
-        ClauseSet cs = CNFReader.readFile("cnfgen-parity-9", false);
+        ClauseSet cs = CNFReader.readFile("false", false);
         CNFSolver solver = new CNFSolver();
         solver.setClauseSet(cs);
         long startTime = System.currentTimeMillis();

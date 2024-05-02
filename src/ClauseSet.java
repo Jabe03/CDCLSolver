@@ -11,6 +11,7 @@ public class ClauseSet {
         this.numLiterals = numLiterals;
     }
 
+
     public Integer[] getClause(Integer clause) {
         return clauses.get(clause);
     }

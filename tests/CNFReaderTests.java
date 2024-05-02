@@ -32,7 +32,7 @@ public class CNFReaderTests {
             List<Integer[]> clauses = cs.getClauses();
             assertNotNull(clauses);
             long elapsed = (System.currentTimeMillis() - start);
-            System.out.println("Read " + f.getName() + "(" + clauses.size() + "clauses) in" + elapsed + "ms. " + cs);
+            System.out.println(f.getName());
             /*if(elapsed == 0){
                 fail("Something is wrong with the following clause set generated:\n" + main.toStringArrayListWithArrays(clauses));
             }*/

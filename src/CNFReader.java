@@ -13,7 +13,7 @@ public class CNFReader {
             path += "unsat\\";
         }
 
-        path += name + ".cnf";
+        path += name +  (name.endsWith(".cnf") ? "" : ".cnf");
         File f = new File(path);
 
         return readFile(f);
