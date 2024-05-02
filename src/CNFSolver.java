@@ -173,8 +173,9 @@ public class CNFSolver {
                 if(i == clause.length - 1){//if no literals are available to be watched, add the other variable watched to the propagate queue
                     ArrayList<Integer> potentialLitsToPropagate = new ArrayList<>(watchedList.getWatchedLitsInClause(clauseIndex));
                     potentialLitsToPropagate.remove(Integer.valueOf(-litToBePropagated));
-
-                    propagateQueue.add(potentialLitsToPropagate.get(0));
+                   if(potentialLitsToPropagate.size() !=0){
+                       propagateQueue.add(potentialLitsToPropagate.get(0));
+                   }
 
                 }
             }

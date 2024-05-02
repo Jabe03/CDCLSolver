@@ -142,12 +142,20 @@ public class UNSATTests {
         System.out.println("full7 assignment" + s.getSolution().toFormattedString());
     }
     @Test(timeout = 5000)
-    public void testph6prime65537() {
+    public void testph6() {
         CNFSolver s = new CNFSolver();
-        s.setClauseSet(CNFReader.readFile("ph6prime65537", false));
+        s.setClauseSet(CNFReader.readFile("ph6", false));
         s.solve();
         assertEquals("Concluded incorrectly with assignment: " + s.getSolution().toFormattedString(), s.getSolution().satisfiability, "UNSAT");
-        System.out.println("ph6prime65537 assignment" + s.getSolution().toFormattedString());
+        System.out.println("ph6 assignment" + s.getSolution().toFormattedString());
+    }
+    @Test(timeout = 5000)
+    public void testprime65537() {
+        CNFSolver s = new CNFSolver();
+        s.setClauseSet(CNFReader.readFile("prime65537", false));
+        s.solve();
+        assertEquals("Concluded incorrectly with assignment: " + s.getSolution().toFormattedString(), s.getSolution().satisfiability, "UNSAT");
+        System.out.println("prime65537 assignment" + s.getSolution().toFormattedString());
     }
     @Test(timeout = 5000)
     public void testtest_decision_and_fail() {
