@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,13 +9,19 @@ import static java.lang.Math.max;
 
 public class main{
 
-    public static void main(String[] args){
-        testCNFSolver();
+    public static void main(String[] args)  {
+        if(args.length == 1){
+
+            testCNFSolver(args[0]);
+        } else{
+            testCNFSolver("add4");
+        }
+
 
     }
 
-    public static void testCNFSolver(){ //main function
-        ClauseSet cs = CNFReader.readFile("false", false);
+    public static void testCNFSolver(String name){ //main function
+        ClauseSet cs = CNFReader.readFile(name);
         CNFSolver solver = new CNFSolver();
         solver.setClauseSet(cs);
         long startTime = System.currentTimeMillis();

@@ -17,15 +17,26 @@ public class CNFReader {
         File f = new File(path);
 
         return readFile(f);
-
     }
+
+    public static ClauseSet readFile(String name){
+        ClauseSet result = readFile(name, true);
+
+        if(result == null){
+            return readFile(name, false);
+        }
+
+        return result;
+    }
+
+
 
     public static ClauseSet readFile(File f){
         Scanner tsm;
         try{
             tsm = new Scanner(f);
         } catch (FileNotFoundException e){
-            System.out.println(f.getPath() + " was not recognized as a file");
+            //System.out.println(f.getPath() + " was not recognized as a file, looking in  other directory (SAT/UNSAT)");
             return null;
         }
 
