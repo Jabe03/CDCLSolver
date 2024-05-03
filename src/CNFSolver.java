@@ -16,6 +16,8 @@ public class CNFSolver {
 
     private  ArrayList<Integer> propagateQueue;
 
+    private ArrayList<Integer> clauseForSolvedLit;
+
     //private boolean[] solvedClauses;
 
     public CNFSolver(){
@@ -192,5 +194,30 @@ public class CNFSolver {
         }
 
     }
+   /* private ArrayList<Integer> explain(ArrayList<Integer> falsifiedClause, Integer literal){
+        ArrayList<Integer> addedClause = falsifiedClause;
+        Integer falsifiedLiteral = literal;
+        while(solvedLits.totalInHighestDL(addedClause) > 1){
+            ArrayList<Integer> antiClause = getProof(-falsifiedLiteral);
+            addedClause = mergeClauses(falsifiedClause, antiClause);
+            falsifiedLiteral = inHighestDL(addedClause);
+        }
+        return falsifiedClause;
+    }*/
+
+    /*private ArrayList<Integer> mergeClauses(ArrayList<Integer> clauseOne, ArrayList<Integer> clauseTwo){
+        ArrayList<Integer> finalClause = new ArrayList<>();
+        for(int i = 0; i < clauseOne.size(); i++){
+            if(!clauseTwo.contains(clauseOne.get(i)) || !clauseTwo.contains(-clauseOne.get(i))){
+                finalClause.add(clauseOne.get(i));
+            }
+        }
+        for (int i = 0; i < clauseTwo.size(); i++){
+            if (!clauseOne.contains(clauseOne.get(i))){
+                finalClause.add(clauseTwo.get(i));
+            }
+        }
+        return finalClause;
+    }*/
 }
 
