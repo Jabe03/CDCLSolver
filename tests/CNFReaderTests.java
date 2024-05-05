@@ -1,7 +1,8 @@
+import Reader.CNFReader;
+import Reader.ClauseSet;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.TestCase.assertNotNull;

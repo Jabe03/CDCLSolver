@@ -1,3 +1,5 @@
+package Reader;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,11 +45,11 @@ public class ClauseSet {
     }
 
     public String toLongString(){
-        return "ClauseSet numvars=" + numLiterals +"; clauses=" + toStringArrayListWithArrays(clauses);
+        return "Reader.ClauseSet numvars=" + numLiterals +"; clauses=" + toStringArrayListWithArrays(clauses);
     }
     @Override
     public String toString(){
-        return "ClauseSet numvars=" + numLiterals + " numclauses=" + clauses.size();
+        return "Reader.ClauseSet numvars=" + numLiterals + " numclauses=" + clauses.size();
     }
 
     public List<Integer[]> getClauses() {

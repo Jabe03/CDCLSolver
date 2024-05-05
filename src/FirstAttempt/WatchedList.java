@@ -1,3 +1,7 @@
+package FirstAttempt;
+
+import Reader.ClauseSet;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,7 +79,7 @@ public class WatchedList {//class to keep track of which literals are being watc
         return pureLits;
     }
 
-    public String toString() {//convert WatchedList into something printable for testing
+    public String toString() {//convert FirstAttempt.WatchedList into something printable for testing
         StringBuilder b = new StringBuilder();
 
         for (int i = 0; i < positiveWatched.length; i++) {

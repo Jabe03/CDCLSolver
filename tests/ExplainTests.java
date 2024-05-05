@@ -1,3 +1,4 @@
+import FirstAttempt.CNFSolver;
 import org.junit.Test;
 
 import java.util.Arrays;

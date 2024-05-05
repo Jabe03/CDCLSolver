@@ -1,3 +1,5 @@
+package FirstAttempt;
+
 import java.util.*;
 
 public class CNFSolution implements Iterable<Integer> {
@@ -6,7 +8,7 @@ public class CNFSolution implements Iterable<Integer> {
 
 
 
-    String satisfiability;
+    public String satisfiability;
 
     public CNFSolution(){
         sol = new ArrayList<>();
@@ -38,7 +40,6 @@ public class CNFSolution implements Iterable<Integer> {
     /**
      * Adds literal to the last ddecision level
      * @param e Literal to be added
-     * @param reason Index of the clause that is the reason why this literal is getting addded
      */
     public void addToLastDecisionLevel(int e){ //call when propagating our decision
         sol.get(sol.size()-1).add(e);
@@ -126,8 +127,8 @@ public class CNFSolution implements Iterable<Integer> {
     public List<Integer> backjump(int literal, int backjumpLevel){
         System.out.println("backjumping " + this);
 
-        List<ArrayList<Integer>> removed = sol.subList(backjumpLevel+1, sol.size());
-        sol =  sol.subList(0,backjumpLevel+1);
+        List<ArrayList<Integer>> removed = sol.subList(backjumpLevel, sol.size());
+        sol =  sol.subList(0,backjumpLevel);
 
         addToLastDecisionLevel(-literal);
 
@@ -176,6 +177,10 @@ public class CNFSolution implements Iterable<Integer> {
         //System.out.println(this.toString());
         return -1;
     }
+
+    public Integer getLastDecision(){
+        return sol.get(getHighestDecisionLevel()).get(0);
+    }
     public int getHighestLiteral(List<Integer> clause){
         int highestLit = 0;
         int highestDL = -1;
@@ -193,7 +198,7 @@ public class CNFSolution implements Iterable<Integer> {
     }
     public int getSecondHighestDLinClause(List<Integer> clause){
 
-        int highestDL = -1;
+        int highestDL = 0;
         for(Integer lit: clause){
             int decisionLevel = getDLof(lit);
             if(decisionLevel> highestDL){
