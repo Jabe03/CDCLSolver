@@ -9,20 +9,22 @@ public class WatchedList {//class to keep track of which literals are being watc
 
     ArrayList<Integer>[] positiveWatched;//keeps track of positive watched literals
     ArrayList<Integer>[] negativeWatched;//keeps track of negative watched literals
-    ArrayList<Integer>[] watchedLitsInClauses;//keeps track of which literals are currently watched in each clause
+    ArrayList<ArrayList<Integer>> watchedLitsInClauses;//keeps track of which literals are currently watched in each clause
 
     public WatchedList(ClauseSet cs) {//initializes Watched List
         int numLits = cs.getNumLiterals();
         positiveWatched = new ArrayList[numLits];
         negativeWatched = new ArrayList[numLits];
 
-        watchedLitsInClauses = new ArrayList[cs.getNumClauses()];
+        watchedLitsInClauses = new ArrayList<>();
         initPositiveAndNegativeLists(cs);
     }
 
+
+
     private void initPositiveAndNegativeLists(ClauseSet cs) {//Put initial values into watched literals
         for (int i = 0; i < cs.getNumClauses(); i++) {
-            watchedLitsInClauses[i] = new ArrayList<>();
+            watchedLitsInClauses.add(new ArrayList<>());
         }
         for (int i = 0; i < positiveWatched.length; i++) {
             positiveWatched[i] = new ArrayList<>();
@@ -45,7 +47,7 @@ public class WatchedList {//class to keep track of which literals are being watc
     }
 
     public ArrayList<Integer> getWatchedLitsInClause(int clauseIndex) {
-        return watchedLitsInClauses[clauseIndex];
+        return watchedLitsInClauses.get(clauseIndex);
     }
 
     public ArrayList<Integer> getClausesWithWatchedLit(int lit) {
@@ -56,17 +58,18 @@ public class WatchedList {//class to keep track of which literals are being watc
         return negativeWatched[lit - 1];
     }
 
+
     public void addWatched(int clauseindex, int lit) {//when literal is being watched, add it to watched literals
         if (contains(clauseindex, lit)) {             //and keep track of where it is in clause
             return;
         }
         getClausesWithWatchedLit(lit).add(clauseindex);
-        watchedLitsInClauses[clauseindex].add(lit);
+        watchedLitsInClauses.get(clauseindex).add(lit);
     }
 
     public void removeWatched(int clauseindex, int lit) {//when literal is removed, remove it from watched literals and
         getClausesWithWatchedLit(lit).remove(Integer.valueOf(clauseindex)); //stop tracking where it is in clause
-        watchedLitsInClauses[clauseindex].remove(Integer.valueOf(lit));
+        watchedLitsInClauses.get(clauseindex).remove(Integer.valueOf(lit));
     }
 
     public ArrayList<Integer> getPureLiterals() {//Return ll clauses which have only one watched literal
@@ -122,5 +125,17 @@ public class WatchedList {//class to keep track of which literals are being watc
             }
         }
         return true;
+    }
+
+    public void addNewWatched(List<Integer> watchedLits) {
+        if(watchedLits.size() > 2 || watchedLits.size() == 0){
+            throw new RuntimeException("Tried to add an invalid number of literals to watchedList: " + watchedLits);
+        }
+        watchedLitsInClauses.add(new ArrayList<>());
+        addWatched(watchedLitsInClauses.size()-1, watchedLits.get(0));
+        if(watchedLits.size() == 2){
+            addWatched(watchedLitsInClauses.size()-1, watchedLits.get(1));
+        }
+
     }
 }

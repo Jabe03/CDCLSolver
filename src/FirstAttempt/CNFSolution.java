@@ -109,7 +109,7 @@ public class CNFSolution implements Iterable<Integer> {
     }
 
     public void chronologicalBacktrack(){//backtracking without use of Explain/learn. Will implement non-chronological later.
-        System.out.println("Chronological backtracking " + this);
+        //System.out.println("Chronological backtracking " + this);
         if(sol.size() == 1){
             setSatisfiability(false);
             return;
@@ -125,7 +125,7 @@ public class CNFSolution implements Iterable<Integer> {
      * @return list of literals that were removed as a result of the backjump
      */
     public List<Integer> backjump(int literal, int backjumpLevel){
-        System.out.println("backjumping " + this);
+        //System.out.println("backjumping " + this);
 
         List<ArrayList<Integer>> removed = sol.subList(backjumpLevel+1, sol.size());
         sol =  sol.subList(0,backjumpLevel+1);
@@ -207,7 +207,7 @@ public class CNFSolution implements Iterable<Integer> {
                 }
             }
         }
-        System.out.println("getting secondd highest DL in " + clause + " is " + highestDL + " total DL is " + getHighestDecisionLevel());
+        //System.out.println("getting secondd highest DL in " + clause + " is " + highestDL + " total DL is " + getHighestDecisionLevel());
         return highestDL;
     }
 }
