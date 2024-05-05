@@ -8,7 +8,7 @@ import static java.lang.Math.max;
 
 public class CNFSolver {
 
-    public static long TIMEOUT = 5000L;
+    public static long TIMEOUT = 3000000L;
     private static final String[] DECISION_TYPES = new String[]{"most_positive_occurrences", "most_negative_occurrences", "lowest_num"};
     private static final String DECISION_TYPE = DECISION_TYPES[2];
     //private static final String DECISION_TYPE = "lowest_num";
@@ -114,7 +114,7 @@ public class CNFSolver {
                         return;
                     }
                     System.out.println("Failing becuase of no decisions left and non sat " + solvedLits.toString());
-                    fail(wrongClause);//if there are no decisions to be made and not all clauses are satisfied, fail
+                    fail(null);//if there are no decisions to be made and not all clauses are satisfied, fail
                     continue;
                 }
                 numDecisions++;
@@ -205,6 +205,12 @@ public class CNFSolver {
             }
             reasonsForLiterals.put(literal, cs.getNumClauses());
             cs.addClause(conflictClause);
+            //if(conflictClause.size() == 2){
+               // System.out.println(conflictClause);
+               // System.out.println(cs.getLastClause()[0] + " " + cs.getLastClause()[1]);
+             //   watchedList.addWatched(cs.getNumClauses(), cs.getLastClause()[0]);
+               // watchedList.addWatched(cs.getNumClauses(), cs.getLastClause()[1]);
+            //}
 
             //
             clearQueue();

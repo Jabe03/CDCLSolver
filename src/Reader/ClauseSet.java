@@ -19,6 +19,10 @@ public class ClauseSet {
         return clauses.get(clause);
     }
 
+    public Integer[] getLastClause() {
+        return clauses.get(clauses.size()-1);
+    }
+
     public int getNumLiterals() {
         return numLiterals;
     }
