@@ -186,4 +186,16 @@ public class CNFSolution implements Iterable<Integer> {
         }
         return highestLit;
     }
+    public int getHighestDL(List<Integer> clause){
+        int highestDL = -1;
+        for(Integer lit: clause){
+            int decisionLevel = getDLof(lit);
+            if(decisionLevel> highestDL){
+                if(highestDL != getHighestDecisionLevel()){
+                    highestDL = decisionLevel;
+                }
+            }
+        }
+        return highestDL;
+    }
 }

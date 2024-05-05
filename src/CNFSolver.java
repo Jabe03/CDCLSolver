@@ -166,7 +166,11 @@ public class CNFSolver {
     private void fail(int wrongClause){//Clear propagate queue if failed and backtrack
         //System.out.println("Backtracking")
         List<Integer> conflictClause = explain(Arrays.asList(cs.getClause(wrongClause)));
-        //solvedLits.backjump();
+        int backJumpLevel = solvedLits.getHighestDL(conflictClause);
+        cs.addClause(conflictClause);
+        int reasonClauseIndex = cs.size();
+
+        //solvedLits.backjump( , backJumpLevel, reasonClauseIndex);
         //solvedLits.chronologicalBacktrack();
         propagateQueue.clear();
     }

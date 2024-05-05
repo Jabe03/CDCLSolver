@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,5 +52,12 @@ public class ClauseSet {
 
     public List<Integer[]> getClauses() {
         return clauses;
+    }
+
+    public void addClause(List<Integer> addedClause){
+        clauses.add(addedClause.toArray(new Integer[addedClause.size()]));
+    }
+    public int size(){
+        return clauses.size();
     }
 }
