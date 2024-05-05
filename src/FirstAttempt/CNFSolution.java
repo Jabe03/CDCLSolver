@@ -43,6 +43,7 @@ public class CNFSolution implements Iterable<Integer> {
      */
     public void addToLastDecisionLevel(int e){ //call when propagating our decision
         sol.get(sol.size()-1).add(e);
+        //System.out.println("M=" + sol);
     }
     public int length(){ //return total number of literals in all decision levels
         int totalLength = 0;

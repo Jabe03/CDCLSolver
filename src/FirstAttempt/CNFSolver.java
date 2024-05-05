@@ -11,6 +11,9 @@ public class CNFSolver {
     public static long TIMEOUT = 3000000L;
     private static final String[] DECISION_TYPES = new String[]{"most_positive_occurrences", "most_negative_occurrences", "lowest_num"};
     private static final String DECISION_TYPE = DECISION_TYPES[2];
+    private int numBackjumps = 0;
+    private int numBacktracks = 0;
+    private int levelsBackjumped = 0;
     //private static final String DECISION_TYPE = "lowest_num";
     private final CNFSolution solvedLits;
     private ClauseSet cs;
@@ -182,6 +185,8 @@ public class CNFSolver {
             clearQueue();
             propagateQueue.add(solvedLits.getLastOfLastDecisionLevel());
             reasonQueue.add(-1);
+            numBacktracks++;
+            levelsBackjumped++;
         } else {
             List<Integer> originalConflict = Arrays.asList(cs.getClause(wrongClause));
             //System.out.println("Found conflict with clause " + wrongClause + ": " + originalConflict);
@@ -190,6 +195,8 @@ public class CNFSolver {
                     solvedLits.addToLastDecisionLevel(lit);
                 }
             }
+            int beforeDL = solvedLits.getHighestDecisionLevel();
+            //System.out.println("DL before = " + );
             List<Integer> conflictClause = explain(originalConflict);
             //System.out.println("Explained clause " + originalConflict + "-->" + conflictClause);
             int backJumpLevel = solvedLits.getSecondHighestDLinClause(conflictClause);
@@ -197,7 +204,9 @@ public class CNFSolver {
             int literal = solvedLits.getHighestLiteral(conflictClause);
             //System.out.println("Conflict clause=" + conflictClause + " backjumplevel=" + backJumpLevel + " literal=" + literal + " " + solvedLits);
             List<Integer> removed = solvedLits.backjump(-literal, backJumpLevel);
-
+            //System.out.println("DL after = " + );
+            int afterDL = solvedLits.getHighestDecisionLevel();
+            levelsBackjumped += beforeDL - afterDL;
             for (Integer lit : removed) {
                 Integer litRemoved = reasonsForLiterals.remove(lit);
                 if(litRemoved != null){
@@ -219,8 +228,9 @@ public class CNFSolver {
             if(!cs.containsClause(conflictClause)){
                 addClause(conflictClause);
             }
+            numBackjumps++;
         }
-        //System.out.println("after backtrack: " + solvedLits + " with propagation queue: " + propagateQueue);
+        System.out.println("Chronological Backtracks=" + numBacktracks + " Backjumps=" + numBackjumps + " avg levels jumped per backtrack=" + (levelsBackjumped/(double)(numBackjumps+numBacktracks)));
     }
 
     private void addClause(List<Integer> clause){
@@ -240,7 +250,7 @@ public class CNFSolver {
         }
         watchedList.addNewWatched(watchedLits);
 
-        //System.out.println("Added new clause to the set");
+        System.out.println("Added new clause to the set " + (clause.size() >= 10? clause.subList(0,10): clause));
     }
     private void propagate(Integer litToBePropagated, int reasonIndex){//propagate a literal
         solvedLits.addToLastDecisionLevel(litToBePropagated);
