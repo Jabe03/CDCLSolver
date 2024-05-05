@@ -5,7 +5,6 @@ public class WatchedList {//class to keep track of which literals are being watc
 
     ArrayList<Integer>[] positiveWatched;//keeps track of positive watched literals
     ArrayList<Integer>[] negativeWatched;//keeps track of negative watched literals
-
     ArrayList<Integer>[] watchedLitsInClauses;//keeps track of which literals are currently watched in each clause
 
     public WatchedList(ClauseSet cs) {//initializes Watched List
