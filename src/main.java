@@ -16,12 +16,7 @@ public class main{
             testCNFSolver(args[0]);
         } else{
             String[] samples = new String[]{
-                    "e",
-                    "elimredundant",
-                    "block0",
-                    "full1",
-                    "false",
-                    "cnfgen-php-5-4"
+                    "uf20-0101"
             };
 
             for(String fileName: samples){

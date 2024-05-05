@@ -88,8 +88,8 @@ public class CNFSolver {
                 last = now;
             }
             if(!propagateQueue.isEmpty()) {//propagate if there are literals we can propagate
-                Integer litToBePropagated = propagateQueue.remove(propagateQueue.size()-1);//
-                Integer reasonIndex = reasonQueue.remove(reasonQueue.size()-1);
+                Integer litToBePropagated = propagateQueue.remove(0);//
+                //Integer reasonIndex = reasonQueue.remove(reasonQueue.size()-1);
                 if(solvedLits.contains(-litToBePropagated)){//if complement of literal is within solution, fail. Do not propagate
                     System.out.println("Failing becuase trying to prpagate " + litToBePropagated + " but it appears in M:" + solvedLits);
                     System.out.println(reasonsForLiterals);
@@ -101,7 +101,7 @@ public class CNFSolver {
                     continue;
                 }
                 //System.out.println(watchedList);
-                propagate(litToBePropagated, reasonIndex);//propagate the literal
+                propagate(litToBePropagated, 3);//propagate the literal
                 numPropagations++;
                 //System.out.println("After propagating " + litToBePropagated +":\n" + watchedList);
             } else {//if the propagate queue is empty, make a decision
@@ -185,6 +185,11 @@ public class CNFSolver {
         } else {
             List<Integer> originalConflict = Arrays.asList(cs.getClause(wrongClause));
             System.out.println("Found conflict with clause " + wrongClause + ": " + originalConflict);
+            for(Integer lit:propagateQueue){
+                if (!solvedLits.contains(-lit)){
+                    solvedLits.addToLastDecisionLevel(lit);
+                }
+            }
             List<Integer> conflictClause = explain(originalConflict);
             System.out.println("Explained clause " + originalConflict + "-->" + conflictClause);
             int backJumpLevel = solvedLits.getSecondHighestDLinClause(conflictClause);
@@ -210,9 +215,9 @@ public class CNFSolver {
     }
     private void propagate(Integer litToBePropagated, int reasonIndex){//propagate a literal
         solvedLits.addToLastDecisionLevel(litToBePropagated);
-        if(reasonIndex != -1) {
-            reasonsForLiterals.put(litToBePropagated, reasonIndex);
-        }
+        //if(reasonIndex != -1) {
+        //    reasonsForLiterals.put(litToBePropagated, reasonIndex);
+        //}
         for(Integer clauseIndex: new ArrayList<>(watchedList.getClausesWithWatchedLit(-litToBePropagated))){
             Integer newLitToBeWatched = 0;
             Integer[] clause = cs.getClause(clauseIndex);
@@ -235,7 +240,8 @@ public class CNFSolver {
 
 
                        propagateQueue.add(lit);
-                       reasonQueue.add(clauseIndex);
+                       reasonsForLiterals.put(lit, clauseIndex);
+
                    }
 
                 }
@@ -259,10 +265,20 @@ public class CNFSolver {
     private List<Integer> explain(List<Integer> conflictClause){
         List<Integer> newConflict = new ArrayList<>(conflictClause);
         List<Integer> highestDLList = solvedLits.getDecisionLevel(solvedLits.getHighestDecisionLevel());
-        while(countNumSimilarities(newConflict, highestDLList) >1){
+        System.out.println(newConflict);
+        System.out.println(highestDLList);
+        System.out.println(countNumSimilarities(newConflict, highestDLList));
+        int count = 0;
+        while(countNumSimilarities(newConflict, highestDLList) >1 && count < 50){
             Integer resolveLiteral = getLitInHighestDL(newConflict);
+            System.out.println(resolveLiteral);
+            System.out.println();
             List<Integer> reasonClause =Arrays.asList(cs.getClause(reasonsForLiterals.get(-resolveLiteral)));
             newConflict = mergeClauses(newConflict, reasonClause, resolveLiteral);
+            System.out.println(newConflict);
+            System.out.println(highestDLList);
+            System.out.println(countNumSimilarities(newConflict, highestDLList));
+            count++;
         }
         return newConflict;
     }
@@ -271,16 +287,20 @@ public class CNFSolver {
         List<Integer> highestDLList = new ArrayList<>(solvedLits.getDecisionLevel(solvedLits.getHighestDecisionLevel()));
         highestDLList.remove(0);
         for(Integer lit: clause){
-            if(highestDLList.contains(lit) || highestDLList.contains(-lit)){
+            if(highestDLList.contains(-lit)){
                 return lit;
             }
         }
         throw new RuntimeException("no lit found in highest DL that wasn't the decision literal");
     }
-    public static Integer countNumSimilarities(List<Integer> list1, List<Integer> list2){
-        List<Integer> result = new ArrayList<>(list1);
-        result.retainAll(list2);
-        return result.size();
+    public static Integer countNumSimilarities(List<Integer> list1, List<Integer> list2) {
+        int count = 0;
+        for (Integer num : list1) {
+            if (list2.contains(-num)) {
+                count++;
+            }
+        }
+        return count;
     }
     /*
     private List<Integer> explain(List<Integer> falsifiedClause){

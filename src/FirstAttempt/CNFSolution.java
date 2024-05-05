@@ -127,8 +127,8 @@ public class CNFSolution implements Iterable<Integer> {
     public List<Integer> backjump(int literal, int backjumpLevel){
         System.out.println("backjumping " + this);
 
-        List<ArrayList<Integer>> removed = sol.subList(backjumpLevel, sol.size());
-        sol =  sol.subList(0,backjumpLevel);
+        List<ArrayList<Integer>> removed = sol.subList(backjumpLevel+1, sol.size());
+        sol =  sol.subList(0,backjumpLevel+1);
 
         addToLastDecisionLevel(-literal);
 
