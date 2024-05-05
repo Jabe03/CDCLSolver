@@ -1,8 +1,6 @@
 package Reader;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class ClauseSet {
 
@@ -47,7 +45,16 @@ public class ClauseSet {
 
         return b.toString();
     }
-
+    public boolean containsClause(List<Integer> list){
+        Set<Integer> set1 = new HashSet<>(list);
+        for(Integer[] clause: clauses){
+            HashSet<Integer> set2 = new HashSet<>(List.of(clause));
+            if(set2.equals(set1)){
+                return true;
+            }
+        }
+        return false;
+    }
     public String toLongString(){
         return "Reader.ClauseSet numvars=" + numLiterals +"; clauses=" + toStringArrayListWithArrays(clauses);
     }

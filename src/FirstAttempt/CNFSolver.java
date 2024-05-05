@@ -216,7 +216,9 @@ public class CNFSolver {
             clearQueue();
             propagateQueue.add(solvedLits.getLastOfLastDecisionLevel());
             reasonQueue.add(-1);
-            addClause(conflictClause);
+            if(!cs.containsClause(conflictClause)){
+                addClause(conflictClause);
+            }
         }
         //System.out.println("after backtrack: " + solvedLits + " with propagation queue: " + propagateQueue);
     }

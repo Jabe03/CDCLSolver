@@ -196,6 +196,8 @@ public class CNFSolution implements Iterable<Integer> {
         }
         return highestLit;
     }
+
+
     public int getSecondHighestDLinClause(List<Integer> clause){
 
         int highestDL = 0;
