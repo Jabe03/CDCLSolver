@@ -57,7 +57,4 @@ public class ClauseSet {
     public void addClause(List<Integer> addedClause){
         clauses.add(addedClause.toArray(new Integer[addedClause.size()]));
     }
-    public int size(){
-        return clauses.size();
-    }
 }

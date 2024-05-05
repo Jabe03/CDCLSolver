@@ -2,7 +2,7 @@ import java.util.*;
 
 public class CNFSolution implements Iterable<Integer> {
 
-    private ArrayList<ArrayList<Integer>> sol;
+    private List<ArrayList<Integer>> sol;
 
 
 
@@ -40,7 +40,7 @@ public class CNFSolution implements Iterable<Integer> {
      * @param e Literal to be added
      * @param reason Index of the clause that is the reason why this literal is getting addded
      */
-    public void addToLastDecisionLevel(int e, int reason){ //call when propagating our decision
+    public void addToLastDecisionLevel(int e){ //call when propagating our decision
         sol.get(sol.size()-1).add(e);
     }
     public int length(){ //return total number of literals in all decision levels
@@ -106,28 +106,30 @@ public class CNFSolution implements Iterable<Integer> {
         }
         return b.toString();
     }
-    /*
+
     public void chronologicalBacktrack(){//backtracking without use of Explain/learn. Will implement non-chronological later.
+        System.out.println("Chronological backtracking " + this);
         if(sol.size() == 1){
             setSatisfiability(false);
             return;
         }
         ArrayList<Integer> removedPropPath = sol.remove(sol.size()-1);
         addToLastDecisionLevel(-removedPropPath.get(0));
-    }*/
+    }
 
     /**
      *
      * @param literal
      * @param backjumpLevel
-     * @param reasonClauseIndex
      * @return list of literals that were removed as a result of the backjump
      */
-    public List<Integer> backjump(int literal, int backjumpLevel, int reasonClauseIndex){
-        List<ArrayList<Integer>> removed = sol.subList(backjumpLevel, sol.size());
-        sol = (ArrayList<ArrayList<Integer>>) sol.subList(0,backjumpLevel);
+    public List<Integer> backjump(int literal, int backjumpLevel){
+        System.out.println("backjumping " + this);
 
-        addToLastDecisionLevel(-literal, reasonClauseIndex);
+        List<ArrayList<Integer>> removed = sol.subList(backjumpLevel+1, sol.size());
+        sol =  sol.subList(0,backjumpLevel+1);
+
+        addToLastDecisionLevel(-literal);
 
 
         return  mergeLists(removed);
@@ -156,19 +158,22 @@ public class CNFSolution implements Iterable<Integer> {
         int count = 0;
 
         for(Integer lit: addedClause){
-            if(highestDL.contains(lit)){
-
+            if(highestDL.contains(lit) || highestDL.contains(-lit)){
                 count++;
             }
         }
         return count;
     }
     public int getDLof(Integer literal){
+
         for(int i = 0; i < sol.size(); i ++){
-            if(sol.get(i).contains(literal)){
+            if(sol.get(i).contains(literal) || sol.get(i).contains(-literal)){
+                //System.out.println("DL of " + literal + " is " + i);
                 return i;
             }
         }
+        //System.out.println("DL of " + literal + " is non existent");
+        //System.out.println(this.toString());
         return -1;
     }
     public int getHighestLiteral(List<Integer> clause){
@@ -180,22 +185,24 @@ public class CNFSolution implements Iterable<Integer> {
                 highestLit = lit;
                 highestDL = decisionLevel;
                 if(highestDL == getHighestDecisionLevel()){
-                    return highestDL;
+                    return lit;
                 }
             }
         }
         return highestLit;
     }
-    public int getHighestDL(List<Integer> clause){
+    public int getSecondHighestDLinClause(List<Integer> clause){
+
         int highestDL = -1;
         for(Integer lit: clause){
             int decisionLevel = getDLof(lit);
             if(decisionLevel> highestDL){
-                if(highestDL != getHighestDecisionLevel()){
+                if(decisionLevel != getHighestDecisionLevel()){
                     highestDL = decisionLevel;
                 }
             }
         }
+        System.out.println("getting secondd highest DL in " + clause + " is " + highestDL + " total DL is " + getHighestDecisionLevel());
         return highestDL;
     }
 }

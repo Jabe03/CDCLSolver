@@ -163,19 +163,32 @@ public class CNFSolver {
 
     }
 
-    private void fail(int wrongClause){//Clear propagate queue if failed and backtrack
+    private void fail(Integer wrongClause){//Clear propagate queue if failed and backtrack
         //System.out.println("Backtracking")
-        List<Integer> conflictClause = explain(Arrays.asList(cs.getClause(wrongClause)));
-        int backJumpLevel = solvedLits.getHighestDL(conflictClause);
-        cs.addClause(conflictClause);
-        int reasonClauseIndex = cs.size();
+        if(wrongClause == null){
+            solvedLits.chronologicalBacktrack();
+            propagateQueue.clear();
+            propagateQueue.add(solvedLits.getLastOfLastDecisionLevel());
+        } else {
+            List<Integer> conflictClause = explain(Arrays.asList(cs.getClause(wrongClause)));
+            int backJumpLevel = solvedLits.getSecondHighestDLinClause(conflictClause);
+            cs.addClause(conflictClause);
+            //int reasonClauseIndex = cs.getNumClauses();
+            int literal = solvedLits.getHighestLiteral(conflictClause);
+            System.out.println("Conflict clause=" + conflictClause + " backjumplevel=" + backJumpLevel + " literal=" + literal + " " + solvedLits);
+            List<Integer> removed = solvedLits.backjump(-literal, backJumpLevel);
+            for (Integer lit : removed) {
+                reasonsForLiterals.remove(lit);
+            }
 
-        //solvedLits.backjump( , backJumpLevel, reasonClauseIndex);
-        //solvedLits.chronologicalBacktrack();
-        propagateQueue.clear();
+            //
+            propagateQueue.clear();
+            propagateQueue.add(-literal);
+        }
+        System.out.println("after backjump: " + solvedLits);
     }
     private void propagate(Integer litToBePropagated){//propagate a literal
-        solvedLits.addToLastDecisionLevel(litToBePropagated, reasonsForLiterals.get(litToBePropagated));
+        solvedLits.addToLastDecisionLevel(litToBePropagated);
         for(Integer clauseIndex: new ArrayList<>(watchedList.getClausesWithWatchedLit(-litToBePropagated))){
             Integer newLitToBeWatched = 0;
             Integer[] clause = cs.getClause(clauseIndex);
@@ -216,7 +229,8 @@ public class CNFSolver {
             newConflict = mergeClauses(falsifiedClause, antiClause, falsifiedLiteral);
             falsifiedLiteral = solvedLits.getHighestLiteral(newConflict);
         }
-        return falsifiedClause;
+        System.out.println("done explaining with result " + newConflict);
+        return newConflict;
     }
 
     /**
@@ -226,13 +240,14 @@ public class CNFSolver {
      * @param lit literal to be resolved around
      * @return
      */
-    private ArrayList<Integer> mergeClauses(List<Integer> clauseOne, List<Integer> clauseTwo, int lit){
+    public static ArrayList<Integer> mergeClauses(List<Integer> clauseOne, List<Integer> clauseTwo, int lit){
+        System.out.println("merging" + clauseOne + " " + clauseTwo + " resolving literal=" + lit);
         Set<Integer> result = new HashSet<>();
         ArrayList<Integer> clause1 = new ArrayList<>(clauseOne);
         ArrayList<Integer> clause2 = new ArrayList<>(clauseTwo);
 
-        clause1.remove(lit);
-        clause2.remove(-lit);
+        clause1.remove(Integer.valueOf(lit));
+        clause2.remove(Integer.valueOf(-lit));
 
         result.addAll(clause1);
         result.addAll(clause2);
