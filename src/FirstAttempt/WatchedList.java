@@ -3,7 +3,9 @@ package FirstAttempt;
 import Reader.ClauseSet;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WatchedList {//class to keep track of which literals are being watched in each clause (two watched literals)
 
@@ -72,11 +74,12 @@ public class WatchedList {//class to keep track of which literals are being watc
         watchedLitsInClauses.get(clauseindex).remove(Integer.valueOf(lit));
     }
 
-    public ArrayList<Integer> getPureLiterals() {//Return ll clauses which have only one watched literal
-        ArrayList<Integer> pureLits = new ArrayList<>();
-        for (ArrayList<Integer> list : watchedLitsInClauses) {
+    public Map<Integer, Integer> getPureLiterals() {//Return ll clauses which have only one watched literal
+        Map<Integer,Integer> pureLits = new HashMap<>();
+        for (int i = 0; i < watchedLitsInClauses.size(); i++) {
+            ArrayList<Integer> list = watchedLitsInClauses.get(i);
             if (list.size() == 1) {
-                pureLits.addAll(list);
+                pureLits.put(list.get(0), i);
             }
         }
         return pureLits;

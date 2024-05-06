@@ -38,10 +38,16 @@ public class CNFSolution implements Iterable<Integer> {
         sol.add(new ArrayList<>());
     }
 
-    public void setSatisfiability(boolean satisfiabile){ //set satisfiability of our solution
-        if(satisfiabile){
+    public void setSatisfiability(boolean satisfiable){ //set satisfiability of our solution
+        if(satisfiable){
             satisfiability = "SAT";
         } else {
+            System.out.println("M: " + this);
+            try{
+                throw new RuntimeException("Concluded UNSAT with");
+            } catch(RuntimeException e){
+                e.printStackTrace();
+            }
             satisfiability = "UNSAT";
         }
     }
@@ -131,6 +137,7 @@ public class CNFSolution implements Iterable<Integer> {
         //System.out.println("Chronological backtracking " + this);
         if(sol.size() == 1){
             setSatisfiability(false);
+            //sol = new ArrayList<>();
             return;
         }
         List<Integer> removedLits = sol.get(getHighestDecisionLevel());

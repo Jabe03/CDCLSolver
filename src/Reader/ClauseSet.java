@@ -73,7 +73,7 @@ public class ClauseSet {
 
     public void addClause(List<Integer> addedClause){
         if(addedClause.size() ==1){
-            System.out.println("adding " + addedClause + " to the set");
+            //System.out.println("adding " + addedClause + " to the set");
         }
         Integer[] clause = addedClause.toArray(new Integer[0]);
         clauseSet.add(addedClause);
