@@ -5,11 +5,18 @@ import java.util.*;
 public class ClauseSet {
 
     private List<Integer[]> clauses;
+
+    private Set<List<Integer>> clauseSet;
     private final int numLiterals;
     public ClauseSet(List<Integer[]> clauses, int numLiterals){
 
         this.clauses = clauses;
         this.numLiterals = numLiterals;
+        clauseSet = new HashSet<>();
+        for(Integer[] clause: clauses){
+            clauseSet.add(List.of(clause));
+        }
+
     }
 
 
@@ -46,14 +53,11 @@ public class ClauseSet {
         return b.toString();
     }
     public boolean containsClause(List<Integer> list){
-        Set<Integer> set1 = new HashSet<>(list);
-        for(Integer[] clause: clauses){
-            HashSet<Integer> set2 = new HashSet<>(List.of(clause));
-            if(set2.equals(set1)){
-                return true;
-            }
-        }
-        return false;
+//        for(List<Integer> clause: clauseSet){
+//            System.out.println(clause);
+//        }
+//        System.out.println("Contains " + Arrays.toString(list.toArray(new Integer[0])) + "?");
+        return clauseSet.contains(list);
     }
     public String toLongString(){
         return "Reader.ClauseSet numvars=" + numLiterals +"; clauses=" + toStringArrayListWithArrays(clauses);
@@ -68,6 +72,11 @@ public class ClauseSet {
     }
 
     public void addClause(List<Integer> addedClause){
-        clauses.add(addedClause.toArray(new Integer[addedClause.size()]));
+        if(addedClause.size() ==1){
+            System.out.println("adding " + addedClause + " to the set");
+        }
+        Integer[] clause = addedClause.toArray(new Integer[0]);
+        clauseSet.add(addedClause);
+        clauses.add(clause);
     }
 }

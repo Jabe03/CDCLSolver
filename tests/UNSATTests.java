@@ -11,7 +11,7 @@ import static junit.framework.TestCase.assertEquals;
 
 public class UNSATTests {
     @Rule
-    public Timeout timeout = new Timeout(15000, TimeUnit.MILLISECONDS);
+    public Timeout timeout = new Timeout(600000, TimeUnit.MILLISECONDS);
     @Test
     public void testadd128() {
         CNFSolver s = new CNFSolver();

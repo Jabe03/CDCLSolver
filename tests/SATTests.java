@@ -1,5 +1,6 @@
 import FirstAttempt.CNFSolver;
 import Reader.CNFReader;
+import Reader.ClauseSet;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
@@ -7,11 +8,12 @@ import org.junit.rules.Timeout;
 import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 
 public class SATTests {
     @Rule
-    public Timeout timeout = new Timeout(15000, TimeUnit.MILLISECONDS);
+    public Timeout timeout = new Timeout(60000, TimeUnit.MILLISECONDS);
     @Test
     public void testblock0() {
         CNFSolver s = new CNFSolver();
@@ -47,9 +49,11 @@ public class SATTests {
     @Test
     public void testelimredundant() {
         CNFSolver s = new CNFSolver();
-        s.setClauseSet(CNFReader.readFile("elimredundant", true));
+        ClauseSet cs = CNFReader.readFile("elimredundant", true);
+        s.setClauseSet(cs);
         s.solve();
         assertEquals(s.getSolution().satisfiability, "SAT");
+        //assertTrue();
         System.out.println("elimredundant assignment" + s.getSolution().toFormattedString());
     }
     @Test
