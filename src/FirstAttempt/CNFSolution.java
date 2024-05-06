@@ -240,4 +240,13 @@ public class CNFSolution implements Iterable<Integer> {
     public boolean isEmpty() {
         return sol.get(0).isEmpty();
     }
+
+    public boolean satisfies(Integer[] clause) {
+        for(Integer lit: clause){
+            if(litsInSol.contains(lit)){
+                return true;
+            }
+        }
+        return false;
+    }
 }

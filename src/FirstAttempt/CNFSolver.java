@@ -8,7 +8,12 @@ import java.util.*;
 import static java.lang.Math.max;
 
 public class CNFSolver {
-    private static final long RESTART_TIME_MILLIS = 1000;
+    private static final long MIN_RESTART_TIME = 50;
+
+    private static final long MAX_RESTART_TIME = 5000;
+    private long RESTART_TIME_MILLIS = MIN_RESTART_TIME;
+
+
     private long NUM_ITERS_UNTIL_RESTART = (long) 40;
 
     private long restartNum = 0;
@@ -18,7 +23,7 @@ public class CNFSolver {
 
     private long last;
     public static long TIMEOUT = 3000000L;
-    private static final String[] DECISION_TYPES = new String[]{"most_positive_occurrences", "most_negative_occurrences", "lowest_num", "random_selection"};
+    private static final String[] DECISION_TYPES = new String[]{"most_positive_occurrences", "most_negative_occurrences", "lowest_num", "random_selection", "random_from_shortest_literal"};
     private static final String DECISION_TYPE = DECISION_TYPES[3];
     private int numBackjumps = 0;
     private int numBacktracks = 0;
@@ -39,6 +44,8 @@ public class CNFSolver {
         this.solvedLits = new CNFSolution();
         reasonQueue = new ArrayList<>();
         propagateQueue  = new ArrayList<>();
+        reasonsForLiterals = new HashMap<>();
+
     }
 
     public void setClauseSet(ClauseSet cs){
@@ -76,7 +83,7 @@ public class CNFSolver {
 
         //NUM_ITERS_UNTIL_RESTART = NUM_ITERS_UNTIL_RESTART* (long)Math.pow(1.01, cs.getNumLiterals());
         //NUM_ITERS_UNTIL_RESTART = NUM_ITERS_UNTIL_RESTART * cs.getNumLiterals();
-        reasonsForLiterals = new HashMap<>();
+
         last = System.currentTimeMillis();
         int numPropagations = 0;
         int numDecisions = 0;
@@ -99,8 +106,8 @@ public class CNFSolver {
             now = System.currentTimeMillis();
 
             if(
-                    (USE_ITERS && (numiters >= (restartNum %10 == 0 ? 5*NUM_ITERS_UNTIL_RESTART : NUM_ITERS_UNTIL_RESTART)) ||
-                            (!USE_ITERS && ( now - last) > (restartNum %10 == 0 ? 5*(RESTART_TIME_MILLIS) :RESTART_TIME_MILLIS)))){
+                    (USE_ITERS && (numiters >= (NUM_ITERS_UNTIL_RESTART)) ||
+                            (!USE_ITERS && (now - last) > RESTART_TIME_MILLIS))){
                 System.out.println("RESTARTING with " + (now-last) + "ms and " + numiters + " iters");
                 System.out.println(solvedLits.getDecisionLevel(0));
                 restart();
@@ -149,9 +156,9 @@ public class CNFSolver {
         //System.out.println("Decisions: " + numDecisions +", Propagations: " + numPropagations+ ", Propagations per decision: " + String.format("%.2f", ((double)numPropagations)/numDecisions));
 
     }
-    public Integer decide(){//Pick which value it is we want to guess/decide
+    public Integer decide(String decisionProcedure){
         Integer decision = 0;
-        switch (DECISION_TYPE) {
+        switch (decisionProcedure) {
             case "lowest_num" -> {//decide the lowest number first
                 decision = 1;
                 while (solvedLits.contains(decision) || solvedLits.contains(-decision)) {
@@ -206,10 +213,52 @@ public class CNFSolver {
                 }
                 return allLits.get((int)(Math.random()*allLits.size()));
             }
+            case "random_from_shortest_literal" ->{
+                int shortestLength = Integer.MAX_VALUE;
+                Integer[] shortestClause = null;
+                for(Integer[] clause : cs.getClauses()){
+                    if(clause.length < shortestLength && !solvedLits.satisfies(clause)){
+                        shortestLength = clause.length;
+                        shortestClause = clause;
+                    }
+                }
+                //System.out.println("Shortest unsatisfied clause is " + Arrays.toString(shortestClause));
+                if(shortestClause == null){
+                    return null;
+                }
+                List<Integer> shortest = new ArrayList<>(Arrays.asList(shortestClause));
+                for(int i = shortest.size()-1; i >= 0; i--){
+                    Integer lit = shortest.get(i);
+                    if(solvedLits.contains(lit) || solvedLits.contains(-lit)){
+                        shortest.remove(i);
+                    }
+                }
+                if(shortest.isEmpty()){
+                    return null;
+                }
+                return shortest.get((int)(Math.random()*shortest.size()));
+//                do{
+//                    decision = shortestClause[(int)(Math.random()*shortestLength)];
+//                } while (!solvedLits.contains(decision) && !solvedLits.contains(-decision));
+//                return decision;
+            }
             default -> throw new RuntimeException("Unsupported decision procedure: " + DECISION_TYPE);
         }
 
     }
+    //private List
+    public Integer decide(){//Pick which value it is we want to guess/decide
+
+        if(RESTART_TIME_MILLIS == MAX_RESTART_TIME){
+            //System.out.println("Using shortest clause decision");
+            return decide(DECISION_TYPES[4]);
+        }else{
+            return decide(DECISION_TYPE);
+        }
+
+    }
+
+
 
     private void fail(Integer wrongClause){//Clear propagate queue if failed and backtrack
         //System.out.println("Backtracking")
@@ -233,6 +282,8 @@ public class CNFSolver {
             //System.out.println("DL before = " + );
             List<Integer> conflictClause = explain(originalConflict);
             if(conflictClause == null){
+                System.out.println("Conflict is empty, concluding UNSAT");
+
                 solvedLits.setSatisfiability(false);
                 return;
             }
@@ -271,10 +322,10 @@ public class CNFSolver {
         //System.out.println("Chronological Backtracks=" + numBacktracks + " Backjumps=" + numBackjumps + " avg levels jumped per backtrack=" + (levelsBackjumped/(double)(numBackjumps+numBacktracks)));
     }
 
-    private void addClause(List<Integer> clause){
+    private boolean addClause(List<Integer> clause){
         //System.out.println("Adding new clause to set...");
         if(cs.containsClause(clause)){
-            return;
+            return false;
         }
         cs.addClause(clause);
         List<Integer> watchedLits = new ArrayList<>();
@@ -290,12 +341,12 @@ public class CNFSolver {
             }
         }
         if(watchedLits.isEmpty()){
-            solvedLits.setSatisfiability(false);
-            System.out.println("satisfiability is now false");
+            //solvedLits.setSatisfiability(false);
+            //System.out.println("satisfiability is now false");
         }
         watchedList.addNewWatched(watchedLits);
 
-
+        return true;
         //System.out.println("Added new clause to the set " + (clause.size() >= 10? clause.subList(0,10): clause));
     }
     private void propagate(Integer litToBePropagated, int reasonIndex){//propagate a literal
@@ -360,9 +411,17 @@ public class CNFSolver {
             //System.out.println();
             Integer clauseIndex = reasonsForLiterals.get(-resolveLiteral);
             if(clauseIndex == null){
+                System.out.println("ClauseIndex is " + clauseIndex);
+                System.out.println("Resolving literal =" + resolveLiteral);
+                System.out.println("Conflict clause (pre resolution" + conflictClause);
+                System.out.println("M: " +  solvedLits);
+                System.out.println("Reasons: " + reasonsForLiterals);
                 return null;
             }
             Integer[] clause = cs.getClause(clauseIndex);
+            if(clauseIndex == null){
+                System.out.println("Clause is " + clause);
+            }
             List<Integer> reasonClause =Arrays.asList(clause);
             newConflict = mergeClauses(newConflict, reasonClause, resolveLiteral);
             //System.out.println(newConflict);
@@ -474,13 +533,29 @@ public class CNFSolver {
 
         List<Integer> firstLevel = solvedLits.getDecisionLevel(0);
         //System.out.println();
+        int numAdded = 0;
         for(Integer lit: firstLevel){
             //System.out.println("Attempting to add " + lit + "as a unit clause after restart");
-            addClause(List.of(lit));
+            if(addClause(List.of(lit))){
+                numAdded++;
+            }
+        }
+        HashMap<Integer, Integer> newReasonsForLiterals = new HashMap<>();
+        for(Integer lit: firstLevel){
+            newReasonsForLiterals.put(lit, reasonsForLiterals.get(lit));
+        }
+        if(numAdded == 0){
+            RESTART_TIME_MILLIS += MIN_RESTART_TIME;
+        } else {
+            RESTART_TIME_MILLIS = MIN_RESTART_TIME;
+        }
+        if(RESTART_TIME_MILLIS > MAX_RESTART_TIME){
+            RESTART_TIME_MILLIS = MAX_RESTART_TIME;
         }
         solvedLits = new CNFSolution();
         //solvedLits.clear();
         this.watchedList = new WatchedList(cs);
+        reasonsForLiterals = newReasonsForLiterals;
         solve();
     }
 }
