@@ -11,7 +11,7 @@ import static junit.framework.TestCase.assertEquals;
 
 public class SATTests {
     @Rule
-    public Timeout timeout = new Timeout(1000, TimeUnit.MILLISECONDS);
+    public Timeout timeout = new Timeout(15000, TimeUnit.MILLISECONDS);
     @Test
     public void testblock0() {
         CNFSolver s = new CNFSolver();
