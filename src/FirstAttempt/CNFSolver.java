@@ -7,15 +7,17 @@ import java.util.*;
 import static java.lang.Math.max;
 
 public class CNFSolver {
+    private long now;
 
+    private long last;
     public static long TIMEOUT = 3000000L;
     private static final String[] DECISION_TYPES = new String[]{"most_positive_occurrences", "most_negative_occurrences", "lowest_num"};
-    private static final String DECISION_TYPE = DECISION_TYPES[2];
+    private static final String DECISION_TYPE = DECISION_TYPES[1];
     private int numBackjumps = 0;
     private int numBacktracks = 0;
     private int levelsBackjumped = 0;
     //private static final String DECISION_TYPE = "lowest_num";
-    private final CNFSolution solvedLits;
+    private CNFSolution solvedLits;
     private ClauseSet cs;
     private WatchedList watchedList;
 
@@ -65,8 +67,7 @@ public class CNFSolver {
 
     public void solve(){//main function to solve
         reasonsForLiterals = new HashMap<>();
-        long last = System.currentTimeMillis();
-        long start = last;
+        last = System.currentTimeMillis();
         int numPropagations = 0;
         int numDecisions = 0;
         if(this.cs == null){
@@ -82,13 +83,12 @@ public class CNFSolver {
         }
         while(!solvedLits.isSolved()){//while the solution isn't found...
 
-            long now = System.currentTimeMillis();
-            if(now -start > TIMEOUT ){
-                return;
-            }
-            if(now - last > 2500){
+            now = System.currentTimeMillis();
+            if(now - last > 2000){
                 //System.out.println("Decisions: " + numDecisions +", Propagations: " + numPropagations+ ", Propagations per decision: " + String.format("%.2f", ((double)numPropagations)/numDecisions));
-                last = now;
+                System.out.println("RESTARTING");
+                System.out.print(solvedLits);
+                restart();
             }
             if(!propagateQueue.isEmpty()) {//propagate if there are literals we can propagate
                 Integer litToBePropagated = propagateQueue.remove(0);//
@@ -230,7 +230,7 @@ public class CNFSolver {
             }
             numBackjumps++;
         }
-        System.out.println("Chronological Backtracks=" + numBacktracks + " Backjumps=" + numBackjumps + " avg levels jumped per backtrack=" + (levelsBackjumped/(double)(numBackjumps+numBacktracks)));
+        //System.out.println("Chronological Backtracks=" + numBacktracks + " Backjumps=" + numBackjumps + " avg levels jumped per backtrack=" + (levelsBackjumped/(double)(numBackjumps+numBacktracks)));
     }
 
     private void addClause(List<Integer> clause){
@@ -415,6 +415,12 @@ public class CNFSolver {
             }
         }
         return finalClause;*/
+    }
+    private void restart(){
+        clearQueue();
+        this.solvedLits = new CNFSolution();
+        this.watchedList = new WatchedList(cs);
+        solve();
     }
 }
 

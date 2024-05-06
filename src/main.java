@@ -16,7 +16,7 @@ public class main{
             testCNFSolver(args[0]);
         } else{
             String[] samples = new String[]{
-                    "uf20-0101"
+                    "sqrt1042441"
             };
 
             for(String fileName: samples){
@@ -36,7 +36,6 @@ public class main{
         long endTime = System.currentTimeMillis();
         System.out.println(solver.getSolution().toFormattedString());
         System.out.println("Solved in " + (endTime-startTime) + "ms\n");
-
     }
 
 
