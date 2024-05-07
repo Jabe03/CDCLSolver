@@ -4,9 +4,9 @@ import java.util.*;
 
 public class CNFSolution implements Iterable<Integer> {
 
-    private List<List<Integer>> sol;
+    private List<List<LitSolution>> sol;
 
-    private Set<Integer> litsInSol;
+    private Set<LitSolution> litsInSol;
 
     public String satisfiability;
 
@@ -16,7 +16,7 @@ public class CNFSolution implements Iterable<Integer> {
         sol.add(new ArrayList<>());
         satisfiability = "undecided";
     }
-    public CNFSolution(List<Integer> initial){
+    public CNFSolution(List<LitSolution> initial){
         sol = new ArrayList<>();
         litsInSol = new HashSet<>();
         sol.add(initial);
@@ -29,8 +29,8 @@ public class CNFSolution implements Iterable<Integer> {
         return sol.size()-1;
     }
 
-    public Integer getLastOfLastDecisionLevel(){//returns the final value of the highest decision level
-        List<Integer> highestDL = sol.get(getHighestDecisionLevel());
+    public LitSolution getLastOfLastDecisionLevel(){//returns the final value of the highest decision level
+        List<LitSolution> highestDL = sol.get(getHighestDecisionLevel());
         return highestDL.get(highestDL.size()-1);
     }
 
@@ -56,13 +56,8 @@ public class CNFSolution implements Iterable<Integer> {
      * Adds literal to the last ddecision level
      * @param e Literal to be added
      */
-    public void addToLastDecisionLevel(int e){ //call when propagating our decision
-        if(e == -1){
-            System.out.println("Adding -1 to last decision level");
-        }
-        if(e == 1){
-            System.out.println("Adding 1 to last decision level");
-        }
+    public void addToLastDecisionLevel(int literal, Integer[] reason){ //call when propagating our decision
+        LitSolution e = new LitSolution(literal, reason);
         sol.get(sol.size()-1).add(e);
         litsInSol.add(e);
         //System.out.println("M=" + sol);
@@ -75,7 +70,7 @@ public class CNFSolution implements Iterable<Integer> {
 //        return totalLength;
         return litsInSol.size();
     }
-    public List<Integer> getDecisionLevel(int i){ //return current decision level
+    public List<LitSolution> getDecisionLevel(int i){ //return current decision level
         return sol.get(i);
     }
 
@@ -88,7 +83,7 @@ public class CNFSolution implements Iterable<Integer> {
 //            isContained = isContained || decisionLevel.contains(lit);
 //        }
 //        return isContained;
-        return litsInSol.contains(lit);
+        return litsInSol.contains(new LitSolution(lit, null));
     }
     @Override
     public String toString(){//converts solution into something that can be printed
@@ -97,8 +92,8 @@ public class CNFSolution implements Iterable<Integer> {
         }
         StringBuilder b = new StringBuilder();
         b.append("[");
-        for(List<Integer> dl: sol){
-            for(Integer lit: dl){
+        for(List<LitSolution> dl: sol){
+            for(LitSolution lit: dl){
                 b.append(lit).append(" ");
             }
             b.append("* ");
@@ -161,8 +156,8 @@ public class CNFSolution implements Iterable<Integer> {
     public List<Integer> backjump(int literal, int backjumpLevel){
         //System.out.println("backjumping " + this);
 
-        List<List<Integer>> removed = sol.subList(backjumpLevel+1, sol.size());
-        List<Integer> removedLits = mergeLists(removed);
+        List<List<LitSolution>> removed = sol.subList(backjumpLevel+1, sol.size());
+        List<LitSolution> removedLits = mergeLists(removed);
         removedLits.forEach(litsInSol::remove);
         sol =  sol.subList(0,backjumpLevel+1);
 
@@ -174,9 +169,9 @@ public class CNFSolution implements Iterable<Integer> {
     public Set<Integer> getLitsInSol(){
         return litsInSol;
     }
-    public static List<Integer> mergeLists(List<List<Integer>> lists){
-        List<Integer> result = new ArrayList<>();
-        for(List<Integer> list : lists){
+    public static <E> List<E> mergeLists(List<List<E>> lists){
+        List<E> result = new ArrayList<>();
+        for(List<E> list : lists){
             result.addAll(list);
         }
         return result;
