@@ -21,7 +21,8 @@ public class ClauseSet {
 
 
     public Integer[] getClause(Integer clause) {
-        return clauses.get(clause);
+        Integer[] result = clauses.get(clause);
+        return result;
     }
 
     public Integer[] getLastClause() {

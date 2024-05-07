@@ -1,3 +1,4 @@
+import FirstAttempt.CNFSolution;
 import FirstAttempt.CNFSolver;
 import Reader.ClauseSet;
 import org.junit.Test;
@@ -30,5 +31,14 @@ public class ExplainTests {
         ClauseSet cs = new ClauseSet(clauses,2);
 
         assertTrue(cs.containsClause(List.of(1,2)));
+    }
+
+    @Test
+    public void testGetADuplicate(){
+        CNFSolution solvedLits = new CNFSolution();
+        solvedLits.addToLastDecisionLevel(1);
+        solvedLits.addDecisionLevel();
+        solvedLits.addToLastDecisionLevel(1);
+        System.out.println(CNFSolver.getADuplicate(new ArrayList<Integer>(solvedLits.getMergedSol())));
     }
 }

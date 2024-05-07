@@ -57,6 +57,12 @@ public class CNFSolution implements Iterable<Integer> {
      * @param e Literal to be added
      */
     public void addToLastDecisionLevel(int e){ //call when propagating our decision
+        if(e == -1){
+            System.out.println("Adding -1 to last decision level");
+        }
+        if(e == 1){
+            System.out.println("Adding 1 to last decision level");
+        }
         sol.get(sol.size()-1).add(e);
         litsInSol.add(e);
         //System.out.println("M=" + sol);
@@ -175,7 +181,9 @@ public class CNFSolution implements Iterable<Integer> {
         }
         return result;
     }
-
+    public List<Integer> getMergedSol(){
+        return mergeLists(sol);
+    }
     @Override
     public Iterator<Integer> iterator() { //flattens the solution into one array
         ArrayList<Integer> result  = new ArrayList<>();
