@@ -13,8 +13,11 @@ public class WatchedList {//class to keep track of which literals are being watc
     ArrayList<Integer>[] negativeWatched;//keeps track of negative watched literals
     ArrayList<ArrayList<Integer>> watchedLitsInClauses;//keeps track of which literals are currently watched in each clause
 
+    ClauseSet cs;
+
     public WatchedList(ClauseSet cs) {//initializes Watched List
         int numLits = cs.getNumLiterals();
+        this.cs = cs;
         positiveWatched = new ArrayList[numLits];
         negativeWatched = new ArrayList[numLits];
 
@@ -74,12 +77,12 @@ public class WatchedList {//class to keep track of which literals are being watc
         watchedLitsInClauses.get(clauseindex).remove(Integer.valueOf(lit));
     }
 
-    public Map<Integer, Integer> getPureLiterals() {//Return ll clauses which have only one watched literal
-        Map<Integer,Integer> pureLits = new HashMap<>();
+    public List<LitSolution> getPureLiterals() {//Return ll clauses which have only one watched literal
+        List<LitSolution> pureLits = new ArrayList<>();
         for (int i = 0; i < watchedLitsInClauses.size(); i++) {
             ArrayList<Integer> list = watchedLitsInClauses.get(i);
             if (list.size() == 1) {
-                pureLits.put(list.get(0), i);
+                pureLits.add(new LitSolution(list.get(0), cs.getClause(i)));
             }
         }
         return pureLits;

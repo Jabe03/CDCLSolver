@@ -1,5 +1,6 @@
 import FirstAttempt.CNFSolution;
 import FirstAttempt.CNFSolver;
+import FirstAttempt.LitSolution;
 import Reader.ClauseSet;
 import org.junit.Test;
 
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class ExplainTests {
@@ -36,9 +38,19 @@ public class ExplainTests {
     @Test
     public void testGetADuplicate(){
         CNFSolution solvedLits = new CNFSolution();
-        solvedLits.addToLastDecisionLevel(1);
+        solvedLits.addToLastDecisionLevel(new LitSolution(1));
         solvedLits.addDecisionLevel();
-        solvedLits.addToLastDecisionLevel(1);
-        System.out.println(CNFSolver.getADuplicate(new ArrayList<Integer>(solvedLits.getMergedSol())));
+        solvedLits.addToLastDecisionLevel(new LitSolution(1));
+        //System.out.println(CNFSolver.getADuplicate(new ArrayList<Integer>(solvedLits.getMergedSol())));
+    }
+
+    @Test
+    public void solContainsLit(){
+        CNFSolution solvedLits = new CNFSolution();
+        solvedLits.addToLastDecisionLevel(new LitSolution(1));
+        solvedLits.addToLastDecisionLevel(new LitSolution(1));
+        assertEquals(new LitSolution(1), new LitSolution(1));
+        System.out.println(solvedLits.litsInSol);
+        assertTrue(solvedLits.contains(new LitSolution(1)));
     }
 }

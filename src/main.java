@@ -1,5 +1,6 @@
 import FirstAttempt.CNFSolution;
 import FirstAttempt.CNFSolver;
+import FirstAttempt.LitSolution;
 import Reader.CNFReader;
 import Reader.ClauseSet;
 
@@ -44,8 +45,8 @@ public class main{
         for(int i  = 0; i < set.size(); i++){
             List<Integer> clist = Arrays.asList(set.get(i));
             boolean clauseIsSat = false;
-            for(Integer lit: sol){
-                if (clist.contains(lit)) {
+            for(LitSolution lit: sol){
+                if (clist.contains(lit.literal)) {
                     clauseIsSat = true;
                     break;
                 }

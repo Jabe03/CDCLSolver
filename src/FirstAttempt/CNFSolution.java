@@ -2,11 +2,11 @@ package FirstAttempt;
 
 import java.util.*;
 
-public class CNFSolution implements Iterable<Integer> {
+public class CNFSolution implements Iterable<LitSolution> {
 
     private List<List<LitSolution>> sol;
 
-    private Set<LitSolution> litsInSol;
+    public Set<LitSolution> litsInSol;
 
     public String satisfiability;
 
@@ -53,15 +53,38 @@ public class CNFSolution implements Iterable<Integer> {
     }
 
     /**
-     * Adds literal to the last ddecision level
-     * @param e Literal to be added
+     * Adds literal to the last decision level
      */
     public void addToLastDecisionLevel(int literal, Integer[] reason){ //call when propagating our decision
-        LitSolution e = new LitSolution(literal, reason);
-        sol.get(sol.size()-1).add(e);
-        litsInSol.add(e);
+        addToLastDecisionLevel(new LitSolution(literal, reason));
+
         //System.out.println("M=" + sol);
     }
+    public void addToLastDecisionLevel(LitSolution e){
+        if(contains(e)){
+            try{
+                throw new RuntimeException();
+            } catch (RuntimeException f){
+                //f.printStackTrace();
+            }
+            //System.out.println(e.toLongString());
+        }
+        sol.get(sol.size()-1).add(e);
+        litsInSol.add(e);
+    }
+
+    public Integer[] getReasonFor(Integer litVal){
+        for(LitSolution lit: this){
+            if(Objects.equals(lit.literal, litVal)){
+                return lit.reason;
+            }
+        }
+        return null;
+        //throw new NoSuchElementException("No " +  litVal + " was in M:"+this);
+    }
+
+
+
     public int length(){ //return total number of literals in all decision levels
 //        int totalLength = 0;
 //        for(ArrayList<Integer> dl: sol){
@@ -85,8 +108,14 @@ public class CNFSolution implements Iterable<Integer> {
 //        return isContained;
         return litsInSol.contains(new LitSolution(lit, null));
     }
-    @Override
-    public String toString(){//converts solution into something that can be printed
+    public boolean contains(LitSolution lit){
+        return litsInSol.contains(lit);
+    }
+    public String toStringWithReasons() {
+        return toString(true);
+    }
+
+    private String toString(boolean reasons){
         if(satisfiability.equals("UNSAT")){
             return "UNSAT";
         }
@@ -94,7 +123,7 @@ public class CNFSolution implements Iterable<Integer> {
         b.append("[");
         for(List<LitSolution> dl: sol){
             for(LitSolution lit: dl){
-                b.append(lit).append(" ");
+                b.append(reasons ? lit.toLongString() : lit).append(" ");
             }
             b.append("* ");
         }
@@ -102,9 +131,14 @@ public class CNFSolution implements Iterable<Integer> {
         return b.toString();
     }
 
+    @Override
+    public String toString(){//converts solution into something that can be printed
+        return toString(false);
+    }
+
     public void clear(){
         sol = sol.subList(0,1);
-        List<Integer> removed = mergeLists(sol.subList(1,getHighestDecisionLevel()+1));
+        List<LitSolution> removed = mergeLists(sol.subList(1,getHighestDecisionLevel()+1));
         removed.forEach(litsInSol::remove);
     }
 
@@ -122,7 +156,7 @@ public class CNFSolution implements Iterable<Integer> {
         b.append("\n");
         if(satisfiability.equals("SAT")){
             b.append("v ");
-            for(Integer lit: this){
+            for(LitSolution lit: this){
                 b.append(lit).append(" ");
             }
         }
@@ -141,10 +175,10 @@ public class CNFSolution implements Iterable<Integer> {
             //sol = new ArrayList<>();
             return;
         }
-        List<Integer> removedLits = sol.get(getHighestDecisionLevel());
+        List<LitSolution> removedLits = sol.get(getHighestDecisionLevel());
         removedLits.forEach(litsInSol::remove);
-        List<Integer> removedPropPath = sol.remove(sol.size()-1);
-        addToLastDecisionLevel(-removedPropPath.get(0));
+        List<LitSolution> removedPropPath = sol.remove(sol.size()-1);
+        addToLastDecisionLevel(removedPropPath.get(0).negation());
     }
 
     /**
@@ -153,7 +187,7 @@ public class CNFSolution implements Iterable<Integer> {
      * @param backjumpLevel
      * @return list of literals that were removed as a result of the backjump
      */
-    public List<Integer> backjump(int literal, int backjumpLevel){
+    public List<LitSolution> backjump(int literal, Integer[] reason, int backjumpLevel){
         //System.out.println("backjumping " + this);
 
         List<List<LitSolution>> removed = sol.subList(backjumpLevel+1, sol.size());
@@ -161,12 +195,11 @@ public class CNFSolution implements Iterable<Integer> {
         removedLits.forEach(litsInSol::remove);
         sol =  sol.subList(0,backjumpLevel+1);
 
-        addToLastDecisionLevel(-literal);
+        addToLastDecisionLevel(new LitSolution(-literal, reason));
 
         return removedLits;
     }
-
-    public Set<Integer> getLitsInSol(){
+    public Set<LitSolution> getLitsInSol(){
         return litsInSol;
     }
     public static <E> List<E> mergeLists(List<List<E>> lists){
@@ -176,33 +209,34 @@ public class CNFSolution implements Iterable<Integer> {
         }
         return result;
     }
-    public List<Integer> getMergedSol(){
+    public List<LitSolution> getMergedSol(){
         return mergeLists(sol);
     }
+
     @Override
-    public Iterator<Integer> iterator() { //flattens the solution into one array
-        ArrayList<Integer> result  = new ArrayList<>();
-        for(List<Integer> dl : sol){
+    public Iterator<LitSolution> iterator() { //flattens the solution into one array
+        ArrayList<LitSolution> result  = new ArrayList<>();
+        for(List<LitSolution> dl : sol){
             result.addAll(dl);
         }
         return result.iterator();
     }
-
-    public int totalInHighestDL(List<Integer> addedClause) {
-        List<Integer> highestDL = sol.get(getHighestDecisionLevel());
+    public int totalInHighestDL(List<LitSolution> addedClause) {
+        List<LitSolution> highestDL = sol.get(getHighestDecisionLevel());
         int count = 0;
 
-        for(Integer lit: addedClause){
-            if(highestDL.contains(lit) || highestDL.contains(-lit)){
+        for(LitSolution lit: addedClause){
+            if(highestDL.contains(lit) || highestDL.contains(lit.negation())){
                 count++;
             }
         }
         return count;
     }
-    public int getDLof(Integer literal){
+
+    public int getDLof(LitSolution literal){
 
         for(int i = 0; i < sol.size(); i ++){
-            if(sol.get(i).contains(literal) || sol.get(i).contains(-literal)){
+            if(sol.get(i).contains(literal) || sol.get(i).contains(literal.negation())){
                 //System.out.println("DL of " + literal + " is " + i);
                 return i;
             }
@@ -211,15 +245,15 @@ public class CNFSolution implements Iterable<Integer> {
         //System.out.println(this.toString());
         return -1;
     }
-
-    public Integer getLastDecision(){
+    public LitSolution getLastDecision(){
         return sol.get(getHighestDecisionLevel()).get(0);
     }
+
     public int getHighestLiteral(List<Integer> clause){
         int highestLit = 0;
         int highestDL = -1;
         for(Integer lit: clause){
-            int decisionLevel = getDLof(lit);
+            int decisionLevel = getDLof(new LitSolution(lit));
             if(decisionLevel> highestDL){
                 highestLit = lit;
                 highestDL = decisionLevel;
@@ -236,7 +270,7 @@ public class CNFSolution implements Iterable<Integer> {
 
         int highestDL = 0;
         for(Integer lit: clause){
-            int decisionLevel = getDLof(lit);
+            int decisionLevel = getDLof(new LitSolution(lit));
             if(decisionLevel> highestDL){
                 if(decisionLevel != getHighestDecisionLevel()){
                     highestDL = decisionLevel;
@@ -253,7 +287,7 @@ public class CNFSolution implements Iterable<Integer> {
 
     public boolean satisfies(Integer[] clause) {
         for(Integer lit: clause){
-            if(litsInSol.contains(lit)){
+            if(litsInSol.contains(new LitSolution(lit))){
                 return true;
             }
         }

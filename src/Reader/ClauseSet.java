@@ -19,6 +19,9 @@ public class ClauseSet {
 
     }
 
+    public Integer indexOf(Integer[] clause){
+        return clauses.indexOf(clause);
+    }
 
     public Integer[] getClause(Integer clause) {
         Integer[] result = clauses.get(clause);
