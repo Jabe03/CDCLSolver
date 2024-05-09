@@ -1,7 +1,9 @@
 package Reader;
 
 import FirstAttempt.CNFSolution;
+import FirstAttempt.LitSolution;
 
+import java.sql.Array;
 import java.util.*;
 
 public class ClauseSet {
@@ -77,6 +79,20 @@ public class ClauseSet {
         return clauses;
     }
 
+
+//    public void removeAllClausesWithLiteral(Integer lit){
+//        for(int i = clauseSet.size()-1; i >= 0; i--){
+//            if(List.of(clauses.get(i)).contains(lit)){
+//                removeClause(i);
+//            }
+//        }
+//    }
+//
+//    public void removeClause(int index){
+//        Integer[] clauseToBeRemoved = clauses.get(index);
+//        clauses.remove(index);
+//        clauseSet.remove(new ArrayList<>(List.of(clauseToBeRemoved)));
+//    }
     public void addClause(List<Integer> addedClause){
         if(addedClause.size() ==1){
             //System.out.println("adding " + addedClause + " to the set");
@@ -85,6 +101,27 @@ public class ClauseSet {
         clauseSet.add(addedClause);
         clauses.add(clause);
     }
+
+    public int assignmentSatisfiesClauseSet(CNFSolution sol){//returns true if the solution has been found , false otherwise
+
+        for (int i = 0; i < clauses.size(); i++) {
+            Integer[] clause = clauses.get(i);
+            List<Integer> listClause = Arrays.asList(clause);
+
+            boolean isSatisfied = false;
+            for (LitSolution solvedLit : sol) {
+                if (listClause.contains(solvedLit.literal)) {
+                    isSatisfied = true;
+                    break;
+                }
+            }
+            if (!isSatisfied) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 
     public boolean hasUnsatisfiableClausesWith(CNFSolution  sol){
         boolean result = false;

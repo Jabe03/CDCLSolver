@@ -6,26 +6,29 @@ import java.util.*;
 
 public class CNFSolution implements Iterable<LitSolution> {
 
-    private final ClauseSet cs;
+    //private final ClauseSet cs;
     private List<List<LitSolution>> sol;
 
     public Set<LitSolution> litsInSol;
 
     public String satisfiability;
 
-    public CNFSolution(ClauseSet cs){
+    public CNFSolution(){
         sol = new ArrayList<>();
         litsInSol = new HashSet<>();
         sol.add(new ArrayList<>());
         satisfiability = "undecided";
-        this.cs  = cs;
     }
-//    public CNFSolution(List<LitSolution> initial){
-//        sol = new ArrayList<>();
-//        litsInSol = new HashSet<>();
-//        sol.add(initial);
-//        satisfiability = "undecided";
-//    }
+    public CNFSolution(List<LitSolution> initial){
+        sol = new ArrayList<>();
+        sol.add(new ArrayList<>());
+        litsInSol = new HashSet<>();
+        for(LitSolution lit: initial){
+            this.addToLastDecisionLevel(lit);
+        }
+        satisfiability = "undecided";
+        //System.out.println("Created new CNFSolution with: " + this);
+    }
 
     public LitSolution getLit(Integer lit){
         for(LitSolution temp: this){
@@ -109,13 +112,7 @@ public class CNFSolution implements Iterable<LitSolution> {
         sol.get(sol.size()-1).add(e);
         litsInSol.add(e);
         if(getHighestDecisionLevel() == 0){
-            System.out.println("Added" + e.toLongString() + "to DL0, checking if Clause Set has any fully assigned satisfied clauses");
-            if(cs != null){
-                boolean unsatisfiable = cs.hasUnsatisfiableClausesWith(this);
-                if(unsatisfiable){
-                    CNFSolver.pause();
-                }
-            }
+            //System.out.println("Added" + e.toLongString() + "to DL0, checking if Clause Set has any fully assigned satisfied clauses");
         }
     }
 
@@ -240,9 +237,9 @@ public class CNFSolution implements Iterable<LitSolution> {
         List<LitSolution> removedLits = mergeLists(removed);
         removedLits.forEach(litsInSol::remove);
         sol =  sol.subList(0,backjumpLevel+1);
-        if(literal == 59){
-            System.out.println("Added 59 with reason " + Arrays.toString(reason));
-        }
+//        if(literal == 59){
+//            System.out.println("Added 59 with reason " + Arrays.toString(reason));
+//        }
         addToLastDecisionLevel(new LitSolution(-literal, reason));
 
         return removedLits;
