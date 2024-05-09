@@ -1,26 +1,51 @@
 package FirstAttempt;
 
+import Reader.ClauseSet;
+
 import java.util.*;
 
 public class CNFSolution implements Iterable<LitSolution> {
 
+    private final ClauseSet cs;
     private List<List<LitSolution>> sol;
 
     public Set<LitSolution> litsInSol;
 
     public String satisfiability;
 
-    public CNFSolution(){
+    public CNFSolution(ClauseSet cs){
         sol = new ArrayList<>();
         litsInSol = new HashSet<>();
         sol.add(new ArrayList<>());
         satisfiability = "undecided";
+        this.cs  = cs;
     }
-    public CNFSolution(List<LitSolution> initial){
-        sol = new ArrayList<>();
-        litsInSol = new HashSet<>();
-        sol.add(initial);
-        satisfiability = "undecided";
+//    public CNFSolution(List<LitSolution> initial){
+//        sol = new ArrayList<>();
+//        litsInSol = new HashSet<>();
+//        sol.add(initial);
+//        satisfiability = "undecided";
+//    }
+
+    public LitSolution getLit(Integer lit){
+        for(LitSolution temp: this){
+            if(Objects.equals(temp.literal, lit)){
+                return temp;
+            }
+        }
+        return null;
+    }
+
+    public List<LitSolution> getMissingLits(Integer totalLits){
+        List<LitSolution> missing = new ArrayList<>(totalLits);
+        for(int i  = 1; i <= totalLits; i++){
+            missing.add(new LitSolution(i));
+        }
+        for(LitSolution lit: this){
+            missing.remove(lit);
+            missing.remove(lit.negation());
+        }
+        return missing;
     }
 
 
@@ -51,7 +76,17 @@ public class CNFSolution implements Iterable<LitSolution> {
             satisfiability = "UNSAT";
         }
     }
+    public void addToLastDecisionLevel(Iterable<LitSolution> lits){
+        for(LitSolution lit: lits){
+            addToLastDecisionLevel(lit);
+        }
+    }
+    public void addToLastDecisionLevel(List<Integer> lits){
 
+        for(Integer lit: lits){
+            addToLastDecisionLevel(new LitSolution(lit));
+        }
+    }
     /**
      * Adds literal to the last decision level
      */
@@ -61,16 +96,27 @@ public class CNFSolution implements Iterable<LitSolution> {
         //System.out.println("M=" + sol);
     }
     public void addToLastDecisionLevel(LitSolution e){
-        if(contains(e)){
+
+        if(contains(e) || contains(e.negation())){
             try{
                 throw new RuntimeException();
             } catch (RuntimeException f){
                 //f.printStackTrace();
             }
             //System.out.println(e.toLongString());
+            return;
         }
         sol.get(sol.size()-1).add(e);
         litsInSol.add(e);
+        if(getHighestDecisionLevel() == 0){
+            System.out.println("Added" + e.toLongString() + "to DL0, checking if Clause Set has any fully assigned satisfied clauses");
+            if(cs != null){
+                boolean unsatisfiable = cs.hasUnsatisfiableClausesWith(this);
+                if(unsatisfiable){
+                    CNFSolver.pause();
+                }
+            }
+        }
     }
 
     public Integer[] getReasonFor(Integer litVal){
@@ -125,7 +171,7 @@ public class CNFSolution implements Iterable<LitSolution> {
             for(LitSolution lit: dl){
                 b.append(reasons ? lit.toLongString() : lit).append(" ");
             }
-            b.append("* ");
+            b.append("********** ");
         }
         b.delete(b.length()-3, b.length()).append("]");
         return b.toString();
@@ -194,7 +240,9 @@ public class CNFSolution implements Iterable<LitSolution> {
         List<LitSolution> removedLits = mergeLists(removed);
         removedLits.forEach(litsInSol::remove);
         sol =  sol.subList(0,backjumpLevel+1);
-
+        if(literal == 59){
+            System.out.println("Added 59 with reason " + Arrays.toString(reason));
+        }
         addToLastDecisionLevel(new LitSolution(-literal, reason));
 
         return removedLits;

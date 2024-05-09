@@ -1,5 +1,7 @@
 package Reader;
 
+import FirstAttempt.CNFSolution;
+
 import java.util.*;
 
 public class ClauseSet {
@@ -82,5 +84,27 @@ public class ClauseSet {
         Integer[] clause = addedClause.toArray(new Integer[0]);
         clauseSet.add(addedClause);
         clauses.add(clause);
+    }
+
+    public boolean hasUnsatisfiableClausesWith(CNFSolution  sol){
+        boolean result = false;
+        for(List<Integer> clause: clauseSet){
+            boolean clauseIsSat = false;
+            boolean clauseHasFullAssignment = true;
+            for(Integer lit: clause){
+                if(sol.contains(lit)){
+                    clauseIsSat = true;
+                    break;
+                } else if(!sol.contains(-lit)){
+                    clauseHasFullAssignment = false;
+                    break;
+                }
+            }
+            if(clauseHasFullAssignment && !clauseIsSat){
+                System.out.println("Clause is is unsatisfiable with current assignment: " + clause);
+                result = true;
+            }
+        }
+        return result;
     }
 }

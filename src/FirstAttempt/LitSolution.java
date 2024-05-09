@@ -3,7 +3,7 @@ package FirstAttempt;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class LitSolution {
+public class LitSolution implements Comparable<LitSolution> {
 
     public Integer literal;
     Integer[] reason;
@@ -40,5 +40,10 @@ public class LitSolution {
 
     public LitSolution negation(){
         return new LitSolution(-literal, null);
+    }
+
+    @Override
+    public int compareTo(LitSolution o) {
+            return Math.abs(this.literal) - Math.abs(o.literal);
     }
 }

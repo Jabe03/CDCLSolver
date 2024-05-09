@@ -17,7 +17,7 @@ public class main{
             testCNFSolver(args[0]);
         } else{
             String[] samples = new String[]{
-                    "sqrt1042441"
+                    "prime121"
             };
 
             for(String fileName: samples){
@@ -42,6 +42,7 @@ public class main{
 
     public static boolean solutionSatisfies(CNFSolution sol, ClauseSet clauseSet){ //checks to make sure solution provided satisfies all clauses
         List<Integer[]> set = clauseSet.getClauses();
+        boolean satisfied = true;
         for(int i  = 0; i < set.size(); i++){
             List<Integer> clist = Arrays.asList(set.get(i));
             boolean clauseIsSat = false;
@@ -53,9 +54,28 @@ public class main{
             }
             if(!clauseIsSat){
                 System.out.println("Clause " + (i) + " is unsatisfied: " + clist);
-                return false;
+                satisfied = false;
             }
         }
-        return true;
+        return satisfied;
+    }
+    public static boolean solutionSatisfies(List<LitSolution> sol, ClauseSet clauseSet){ //checks to make sure solution provided satisfies all clauses
+        List<Integer[]> set = clauseSet.getClauses();
+        boolean satisfied = true;
+        for(int i  = 0; i < set.size(); i++){
+            List<Integer> clist = Arrays.asList(set.get(i));
+            boolean clauseIsSat = false;
+            for(LitSolution lit: sol){
+                if (clist.contains(lit.literal)) {
+                    clauseIsSat = true;
+                    break;
+                }
+            }
+            if(!clauseIsSat){
+                System.out.println("Clause " + (i) + " is unsatisfied: " + clist);
+                satisfied = false;
+            }
+        }
+        return satisfied;
     }
 }
