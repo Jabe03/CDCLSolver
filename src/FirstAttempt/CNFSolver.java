@@ -98,7 +98,7 @@ public class CNFSolver {
                     //System.out.println("Failing becuase trying to prpagate " + litToBePropagated + " but it appears in M:" + solvedLits);
                     //System.out.println(reasonsForLiterals);
                     //System.out.println(propagateQueue);
-                    System.out.println(reasonsForLiterals.get(litToBePropagated));
+                    //System.out.println(reasonsForLiterals.get(litToBePropagated));
                     fail(reasonsForLiterals.get(litToBePropagated)); //TODO: this is a challenge (???)
                     continue;
                 }
