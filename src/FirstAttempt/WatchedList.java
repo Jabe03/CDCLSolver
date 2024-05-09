@@ -127,15 +127,16 @@ public class WatchedList {//class to keep track of which literals are being watc
         return true;
     }
 
-    public void addNewWatched(List<Integer> watchedLits) {
+    public boolean addNewWatched(List<Integer> watchedLits) {
         if(watchedLits.size() > 2 || watchedLits.size() == 0){
-            throw new RuntimeException("Tried to add an invalid number of literals to watchedList: " + watchedLits);
+            System.out.println("Tried to add an invalid number of literals to watchedList: " + watchedLits);
+            return false;
         }
         watchedLitsInClauses.add(new ArrayList<>());
         addWatched(watchedLitsInClauses.size()-1, watchedLits.get(0));
         if(watchedLits.size() == 2){
             addWatched(watchedLitsInClauses.size()-1, watchedLits.get(1));
         }
-
+        return true;
     }
 }

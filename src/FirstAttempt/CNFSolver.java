@@ -89,6 +89,7 @@ public class CNFSolver {
                 System.out.println("RESTARTING");
                 System.out.print(solvedLits);
                 restart();
+                return;
             }
             if(!propagateQueue.isEmpty()) {//propagate if there are literals we can propagate
                 Integer litToBePropagated = propagateQueue.remove(0);//
@@ -201,6 +202,10 @@ public class CNFSolver {
 
     private void fail(Integer wrongClause){//Clear propagate queue if failed and backtrack
         //System.out.println("Backtracking")
+        if(solvedLits.getHighestDecisionLevel() == 0){
+            solvedLits.setSatisfiability(false);
+            return;
+        }
         if(wrongClause == null){
             solvedLits.chronologicalBacktrack();
             clearQueue();
@@ -246,6 +251,10 @@ public class CNFSolver {
             clearQueue();
             propagateQueue.add(solvedLits.getLastOfLastDecisionLevel());
             reasonQueue.add(-1);
+            if(conflictClause.isEmpty()){
+                solvedLits.setSatisfiability(false);
+                return;
+            }
             if(!cs.containsClause(conflictClause)){
                 addClause(conflictClause);
             }
@@ -254,7 +263,7 @@ public class CNFSolver {
         //System.out.println("Chronological Backtracks=" + numBacktracks + " Backjumps=" + numBackjumps + " avg levels jumped per backtrack=" + (levelsBackjumped/(double)(numBackjumps+numBacktracks)));
     }
 
-    private void addClause(List<Integer> clause){
+    private void addClause(List<Integer> clause) {
         //System.out.println("Adding new clause to set...");
         cs.addClause(clause);
         List<Integer> watchedLits = new ArrayList<>();
@@ -269,7 +278,11 @@ public class CNFSolver {
                 break;
             }
         }
-        watchedList.addNewWatched(watchedLits);
+        if(!watchedList.addNewWatched(watchedLits)){
+            System.out.println("Original clause" + clause);
+            System.out.println(solvedLits);
+        }
+
 
         System.out.println("Added new clause to the set " + (clause.size() >= 10? clause.subList(0,10): clause));
     }
