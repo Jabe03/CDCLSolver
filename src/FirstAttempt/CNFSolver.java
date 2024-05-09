@@ -98,7 +98,7 @@ public class CNFSolver {
                     //System.out.println("Failing becuase trying to prpagate " + litToBePropagated + " but it appears in M:" + solvedLits);
                     //System.out.println(reasonsForLiterals);
                     //System.out.println(propagateQueue);
-                    System.out.println(reasonsForLiterals.get(litToBePropagated));
+                    //System.out.println(reasonsForLiterals.get(litToBePropagated));
                     fail(reasonsForLiterals.get(litToBePropagated)); //TODO: this is a challenge (???)
                     continue;
                 }
@@ -255,9 +255,9 @@ public class CNFSolver {
                 solvedLits.setSatisfiability(false);
                 return;
             }
-            if(!cs.containsClause(conflictClause)){
-                addClause(conflictClause);
-            }
+
+            addClause(conflictClause);
+
             numBackjumps++;
         }
         //System.out.println("Chronological Backtracks=" + numBacktracks + " Backjumps=" + numBackjumps + " avg levels jumped per backtrack=" + (levelsBackjumped/(double)(numBackjumps+numBacktracks)));
@@ -265,6 +265,9 @@ public class CNFSolver {
 
     private void addClause(List<Integer> clause) {
         //System.out.println("Adding new clause to set...");
+        if(cs.containsClause(clause)){
+            return;
+        }
         cs.addClause(clause);
         List<Integer> watchedLits = new ArrayList<>();
         int i = 0;
@@ -451,6 +454,15 @@ public class CNFSolver {
         return finalClause;*/
     }
     private void restart(){
+
+
+        for(Integer lit: solvedLits.getDecisionLevel(0)){
+            addClause(List.of(lit));
+        }
+        System.out.println("First level after restart: " +  solvedLits.getDecisionLevel(0));
+
+
+
         this.solvedLits = new CNFSolution();
         this.watchedList = new WatchedList(cs);
         clearQueue();
