@@ -23,10 +23,11 @@ public class CNFSolution implements Iterable<LitSolution> {
         sol = new ArrayList<>();
         sol.add(new ArrayList<>());
         litsInSol = new HashSet<>();
+        satisfiability = "undecided";
         for(LitSolution lit: initial){
             this.addToLastDecisionLevel(lit);
         }
-        satisfiability = "undecided";
+
         //System.out.println("Created new CNFSolution with: " + this);
     }
 
@@ -114,6 +115,11 @@ public class CNFSolution implements Iterable<LitSolution> {
         if(getHighestDecisionLevel() == 0){
             //System.out.println("Added" + e.toLongString() + "to DL0, checking if Clause Set has any fully assigned satisfied clauses");
         }
+        //System.out.println(this + "after adding " + e);
+//        System.out.println(" clause set is " +  (ClauseSet.set.assignmentSatisfiesClauseSet(this) == -1 ? "satisfied" : "not satissfied")
+//        + (ClauseSet.set.hasUnsatisfiableClausesWith(this) != null ? "is unsatisfiable" : "could be satisfied") + this + "after adding " + e );
+
+
     }
 
     public Integer[] getReasonFor(Integer litVal){
@@ -168,9 +174,9 @@ public class CNFSolution implements Iterable<LitSolution> {
             for(LitSolution lit: dl){
                 b.append(reasons ? lit.toLongString() : lit).append(" ");
             }
-            b.append("********** ");
+            b.append("* ");
         }
-        b.delete(b.length()-3, b.length()).append("]");
+        b.append("]");
         return b.toString();
     }
 
@@ -212,12 +218,13 @@ public class CNFSolution implements Iterable<LitSolution> {
     }
 
     public void chronologicalBacktrack(){//backtracking without use of Explain/learn. Will implement non-chronological later.
-        //System.out.println("Chronological backtracking " + this);
+        System.out.println("Chronological backtracking " + this);
         if(sol.size() == 1){
             setSatisfiability(false);
             //sol = new ArrayList<>();
             return;
         }
+
         List<LitSolution> removedLits = sol.get(getHighestDecisionLevel());
         removedLits.forEach(litsInSol::remove);
         List<LitSolution> removedPropPath = sol.remove(sol.size()-1);
@@ -231,7 +238,8 @@ public class CNFSolution implements Iterable<LitSolution> {
      * @return list of literals that were removed as a result of the backjump
      */
     public List<LitSolution> backjump(int literal, Integer[] reason, int backjumpLevel){
-        //System.out.println("backjumping " + this);
+        //System.out.println("\nbefore backjump" + this.toStringWithReasons());
+        //System.out.println("backjumping: " + this + "lit=" + literal + "level=" + backjumpLevel + " conflictClause=" + Arrays.toString(reason));
 
         List<List<LitSolution>> removed = sol.subList(backjumpLevel+1, sol.size());
         List<LitSolution> removedLits = mergeLists(removed);
@@ -241,6 +249,7 @@ public class CNFSolution implements Iterable<LitSolution> {
 //            System.out.println("Added 59 with reason " + Arrays.toString(reason));
 //        }
         addToLastDecisionLevel(new LitSolution(-literal, reason));
+        //System.out.println("backjumpedd: " + this + "\n");
 
         return removedLits;
     }
@@ -312,18 +321,25 @@ public class CNFSolution implements Iterable<LitSolution> {
 
 
     public int getSecondHighestDLinClause(List<Integer> clause){
-
-        int highestDL = 0;
+        if(clause.size() == 1){
+            return getDLof(new LitSolution(clause.get(0))) -1;
+        }
+        int highestDL = -2;
+        int secondHighestDL = -1;
         for(Integer lit: clause){
-            int decisionLevel = getDLof(new LitSolution(lit));
-            if(decisionLevel> highestDL){
-                if(decisionLevel != getHighestDecisionLevel()){
-                    highestDL = decisionLevel;
-                }
+            int currentDL = getDLof(new LitSolution(lit));
+            if(currentDL > secondHighestDL){
+                secondHighestDL = currentDL;
             }
+            if(secondHighestDL > highestDL){
+                int temp = secondHighestDL;
+                secondHighestDL = highestDL;
+                highestDL = temp;
+            }
+
         }
         //System.out.println("getting secondd highest DL in " + clause + " is " + highestDL + " total DL is " + getHighestDecisionLevel());
-        return highestDL;
+        return secondHighestDL;
     }
 
     public boolean isEmpty() {

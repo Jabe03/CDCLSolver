@@ -91,4 +91,19 @@ public class ExplainTests {
         assertTrue(main.solutionSatisfies(sol, cs));
 
     }
+
+    @Test
+    public void get2ndHighestDLTest(){
+        CNFSolution sol = new CNFSolution();
+        sol.addToLastDecisionLevel(new LitSolution(1));
+        sol.addDecisionLevel();
+        sol.addToLastDecisionLevel(new LitSolution(2));
+        sol.addToLastDecisionLevel(new LitSolution(3));
+        sol.addToLastDecisionLevel(new LitSolution(4));
+        sol.addDecisionLevel();
+        sol.addToLastDecisionLevel(new LitSolution(5));
+        sol.addDecisionLevel();
+        sol.addToLastDecisionLevel(new LitSolution(6));
+        System.out.println(sol.getSecondHighestDLinClause(List.of(1,2,5)));
+    }
 }

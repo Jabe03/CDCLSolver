@@ -7,13 +7,13 @@ import java.sql.Array;
 import java.util.*;
 
 public class ClauseSet {
-
+    public static ClauseSet set; //TODO: delete
     private List<Integer[]> clauses;
 
     private Set<List<Integer>> clauseSet;
     private final int numLiterals;
     public ClauseSet(List<Integer[]> clauses, int numLiterals){
-
+        set = this; //TODO:  delete
         this.clauses = clauses;
         this.numLiterals = numLiterals;
         clauseSet = new HashSet<>();
@@ -123,8 +123,8 @@ public class ClauseSet {
     }
 
 
-    public boolean hasUnsatisfiableClausesWith(CNFSolution  sol){
-        boolean result = false;
+    public Integer[] hasUnsatisfiableClausesWith(CNFSolution  sol){
+        //boolean result = false;
         for(List<Integer> clause: clauseSet){
             boolean clauseIsSat = false;
             boolean clauseHasFullAssignment = true;
@@ -138,10 +138,10 @@ public class ClauseSet {
                 }
             }
             if(clauseHasFullAssignment && !clauseIsSat){
-                System.out.println("Clause is is unsatisfiable with current assignment: " + clause);
-                result = true;
+                return clause.toArray(new Integer[0]);
+                //result = true;
             }
         }
-        return result;
+        return null;
     }
 }

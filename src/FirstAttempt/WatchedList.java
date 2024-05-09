@@ -90,7 +90,7 @@ public class WatchedList {//class to keep track of which literals are being watc
 
     public String toString() {//convert FirstAttempt.WatchedList into something printable for testing
         StringBuilder b = new StringBuilder();
-
+        b.append("[");
         for (int i = 0; i < positiveWatched.length; i++) {
             b.append("(").append(i + 1).append(": ");
             for (int j = 0; j < positiveWatched[i].size(); j++) {
@@ -99,7 +99,7 @@ public class WatchedList {//class to keep track of which literals are being watc
             b.delete(b.length() - 2, b.length());
             b.append(")");
         }
-        b.append("\n");
+        b.append("  ");
         for (int i = 0; i < negativeWatched.length; i++) {
             b.append("(").append(-(i + 1)).append(": ");
             for (int j = 0; j < negativeWatched[i].size(); j++) {
@@ -108,6 +108,7 @@ public class WatchedList {//class to keep track of which literals are being watc
             b.delete(b.length() - 2, b.length());
             b.append(")");
         }
+        b.append("]");
         return b.toString();
     }
 
