@@ -6,12 +6,13 @@ public class CNFSolution implements Iterable<Integer> {
 
     private List<ArrayList<Integer>> sol;
 
-
+    private Set<Integer> litsInSol;
 
     public String satisfiability;
 
     public CNFSolution(){
         sol = new ArrayList<>();
+        litsInSol = new HashSet<>();
         sol.add(new ArrayList<>());
         satisfiability = "undecided";
     }
@@ -23,6 +24,9 @@ public class CNFSolution implements Iterable<Integer> {
     public Integer getLastOfLastDecisionLevel(){//returns the final value of the highest decision level
         ArrayList<Integer> highestDL = sol.get(getHighestDecisionLevel());
         return highestDL.get(highestDL.size()-1);
+    }
+    public Set<Integer> getLitsInSol(){
+        return litsInSol;
     }
 
     public void addDecisionLevel(){//when a decision is made, add decision level
@@ -43,13 +47,16 @@ public class CNFSolution implements Iterable<Integer> {
      */
     public void addToLastDecisionLevel(int e){ //call when propagating our decision
         sol.get(sol.size()-1).add(e);
+        litsInSol.add(e);
+        //System.out.println("M=" + sol);
     }
     public int length(){ //return total number of literals in all decision levels
-        int totalLength = 0;
-        for(ArrayList<Integer> dl: sol){
-            totalLength += dl.size();
-        }
-        return totalLength;
+//        int totalLength = 0;
+//        for(ArrayList<Integer> dl: sol){
+//            totalLength += dl.size();
+//        }
+//        return totalLength;
+        return litsInSol.size();
     }
     public ArrayList<Integer> getDecisionLevel(int i){ //return current decision level
         return sol.get(i);
@@ -59,11 +66,12 @@ public class CNFSolution implements Iterable<Integer> {
         return satisfiability.equals("SAT") || satisfiability.equals("UNSAT");
     }
     public boolean contains(Integer lit){//checks if a literal exists in any decision level
-        boolean isContained = false;
-        for(ArrayList<Integer> decisionLevel: sol){
-            isContained = isContained || decisionLevel.contains(lit);
-        }
-        return isContained;
+//        boolean isContained = false;
+//        for(ArrayList<Integer> decisionLevel: sol){
+//            isContained = isContained || decisionLevel.contains(lit);
+//        }
+//        return isContained;
+        return litsInSol.contains(lit);
     }
     @Override
     public String toString(){//converts solution into something that can be printed
@@ -109,11 +117,13 @@ public class CNFSolution implements Iterable<Integer> {
     }
 
     public void chronologicalBacktrack(){//backtracking without use of Explain/learn. Will implement non-chronological later.
-        System.out.println("Chronological backtracking " + this);
+        //System.out.println("Chronological backtracking " + this);
         if(sol.size() == 1){
             setSatisfiability(false);
             return;
         }
+        List<Integer> removedLits = sol.get(getHighestDecisionLevel());
+        removedLits.forEach(litsInSol::remove);
         ArrayList<Integer> removedPropPath = sol.remove(sol.size()-1);
         addToLastDecisionLevel(-removedPropPath.get(0));
     }
@@ -125,15 +135,16 @@ public class CNFSolution implements Iterable<Integer> {
      * @return list of literals that were removed as a result of the backjump
      */
     public List<Integer> backjump(int literal, int backjumpLevel){
-        System.out.println("backjumping " + this);
+        //System.out.println("backjumping " + this);
 
-        List<ArrayList<Integer>> removed = sol.subList(backjumpLevel, sol.size());
-        sol =  sol.subList(0,backjumpLevel);
+        List<ArrayList<Integer>> removed = sol.subList(backjumpLevel+1, sol.size());
+        List<Integer> removedLits = mergeLists(removed);
+        removedLits.forEach(litsInSol::remove);
+        sol =  sol.subList(0,backjumpLevel+1);
 
         addToLastDecisionLevel(-literal);
 
-
-        return  mergeLists(removed);
+        return removedLits;
     }
 
 
@@ -196,6 +207,8 @@ public class CNFSolution implements Iterable<Integer> {
         }
         return highestLit;
     }
+
+
     public int getSecondHighestDLinClause(List<Integer> clause){
 
         int highestDL = 0;
@@ -207,7 +220,7 @@ public class CNFSolution implements Iterable<Integer> {
                 }
             }
         }
-        System.out.println("getting secondd highest DL in " + clause + " is " + highestDL + " total DL is " + getHighestDecisionLevel());
+        //System.out.println("getting secondd highest DL in " + clause + " is " + highestDL + " total DL is " + getHighestDecisionLevel());
         return highestDL;
     }
 }

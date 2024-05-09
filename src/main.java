@@ -16,12 +16,7 @@ public class main{
             testCNFSolver(args[0]);
         } else{
             String[] samples = new String[]{
-                    "e",
-                    "elimredundant",
-                    "block0",
-                    "full1",
-                    "false",
-                    "cnfgen-php-5-4"
+                    "add4"
             };
 
             for(String fileName: samples){
@@ -41,7 +36,6 @@ public class main{
         long endTime = System.currentTimeMillis();
         System.out.println(solver.getSolution().toFormattedString());
         System.out.println("Solved in " + (endTime-startTime) + "ms\n");
-
     }
 
 
