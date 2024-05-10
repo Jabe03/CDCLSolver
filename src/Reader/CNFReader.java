@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+/**
+ * Converts cnf file into a ClauseSet
+ */
 public class CNFReader {
     public static ClauseSet readFile(String name, boolean satisfiable){
         String path = "inputs\\";
