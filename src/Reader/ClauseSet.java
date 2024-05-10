@@ -115,5 +115,5 @@ public class ClauseSet {
         }
         return -1;
     }
-    
+
 }
