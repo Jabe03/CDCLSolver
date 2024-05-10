@@ -2,20 +2,46 @@ package Solver;
 
 import java.util.Objects;
 /**
- *  * @author Joshua Bergthold
- *  * @author Brayden Hambright
+ * Data structure for pairing a literal with its reason. A literal does not necessarily need a reason, in the case that it is a decision literal.
+ *  @author Joshua Bergthold
+ *  @author Brayden Hambright
  */
 public class LitSolution implements Comparable<LitSolution> {
 
+    /**
+     * Value of the literal
+     */
     public Integer literal;
+
+    /**
+     * Clause that is the reason this literal was added
+     */
     Integer[] reason;
 
+    /**
+     * Creates a LitSolution
+     * @param literal Literal value
+     * @param reason Reason clause for literal
+     */
     public LitSolution(Integer literal, Integer[] reason){
                 this.literal = literal;
                 this.reason = reason;
     }
+
+    /**
+     * Creates a LitSolution without a reason
+     * @param literal Literal value
+     */
     public LitSolution(Integer literal){
         this(literal,null);
+    }
+
+    /**
+     * Create a reason-less literal representing the negation of this  one
+     * @return Negated literal
+     */
+    public LitSolution negation(){
+        return new LitSolution(-literal, null);
     }
 
     @Override
@@ -34,10 +60,6 @@ public class LitSolution implements Comparable<LitSolution> {
     @Override
     public String toString(){
         return literal.toString();
-    }
-
-    public LitSolution negation(){
-        return new LitSolution(-literal, null);
     }
 
     @Override
