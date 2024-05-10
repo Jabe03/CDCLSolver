@@ -140,12 +140,21 @@ public class CNFSolver {
         }
     }
 
+
+    /**
+     * @return true if the algorithm has timed out
+     */
     private boolean checkTimeout(){
         long now = System.currentTimeMillis();
 
         //see if we have timed out
         return now - startTime > TIMEOUT;
     }
+
+    /**
+     * Analyzes decision and
+     * @param decision
+     */
     private void interpretDecision(Integer decision){
         if (decision == null) {//if there is no decision to be made (there is a full assignment
             int wrongClause = cs.assignmentSatisfiesClauseSet(solvedLits);
@@ -154,34 +163,38 @@ public class CNFSolver {
                 return;
             }
             fail(cs.getClause(wrongClause));
-
         } else {
             solvedLits.addDecisionLevel();
             addAndPropagate(new LitSolution(decision, null));
         }
     }
+    /**
+     * Adds a collection of lits to M and adds them to the propagation queue.
+     * @param lits Collection of literals to be propagated.
+     */
     public void addAndPropagate(Collection<LitSolution> lits){
         for (LitSolution lit : lits) {
             addAndPropagate(lit);
         }
     }
+
+    /**
+     * Adds a literal to M and the propagation queue
+     * @param lit Literal to be added
+     */
     public void addAndPropagate(LitSolution lit){
         solvedLits.addToLastDecisionLevel(lit);
         if(!propagateQueue.contains(lit)) {
             propagateQueue.add(lit);
         }
     }
-    public static <E> E getADuplicate(List<E> stuff){
-        for(int i = 0; i < stuff.size(); i++){
-            for(int j = i + 1; j < stuff.size(); j++){
-                if(stuff.get(i).equals(stuff.get(j))){
-                    return stuff.get(i);
-                }
-            }
-        }
-        return null;
-    }
-    public Integer decide(String decisionProcedure){
+
+    /**
+     * Decides a literal using a specified decision procedure.
+     * @param decisionProcedure Decision procedure to be used.
+     * @return Literal decision
+     */
+    private Integer decide(String decisionProcedure){
         Integer decision = 0;
         switch (decisionProcedure) {
             case "lowest_num" -> {//decide the lowest number first
@@ -232,10 +245,6 @@ public class CNFSolver {
                     }
                 }
                 if(allLits.size() == 0){
-                    if(solvedLits.length() != cs.getNumLiterals()){
-                        LitSolution duplicate = getADuplicate(new ArrayList<>(solvedLits.getMergedSol()));
-                        assert(duplicate != null);
-                    }
                     return null;
                 }
                 decision = allLits.get((int)(r.nextDouble()*allLits.size()));
@@ -270,38 +279,39 @@ public class CNFSolver {
         }
 
     }
+
+    /**
+     * Decides using the default decision procedure defines by DECISION_TYPE
+     * @return Literal decision
+     */
     public Integer decide(){//Pick which value it is we want to guess/decide
-            return decide(DECISION_TYPE);
+        return decide(DECISION_TYPE);
     }
 
 
 
-    private void fail(Integer[] wrongClause){//Clear propagate queue if failed and backtrack
-            List<Integer> originalConflict = Arrays.asList(wrongClause);
-            List<Integer> conflictClause = explain(originalConflict);
-            if(conflictClause == null){
+    private void fail(Integer[] wrongClause){
+        List<Integer> originalConflict = Arrays.asList(wrongClause);
+        List<Integer> conflictClause = explain(originalConflict); //explain the conflict clause
+        int backJumpLevel = solvedLits.getSecondHighestDLinClause(conflictClause); //can backjump to the second-highest decision level of the conflict as per the abstract proof  rule
+            if(backJumpLevel == -1){ //trying to backjump over the first decision level means that we conclude UNSAT
                 solvedLits.setSatisfiability(false);
                 return;
             }
-            int backJumpLevel = solvedLits.getSecondHighestDLinClause(conflictClause);
-            if(backJumpLevel == -1){
-                solvedLits.setSatisfiability(false);
-                return;
-            }
-            int literal = solvedLits.getHighestLiteralOf(conflictClause);
-            solvedLits.backjump(-literal, conflictClause.toArray(new Integer[0]), backJumpLevel);
-            clearQueue();
-            addAndPropagate(solvedLits.getLastOfLastDecisionLevel());
-            addClause(conflictClause);
+
+            int literal = solvedLits.getHighestLiteralOf(conflictClause); //literal to backjump
+            solvedLits.backjump(-literal, conflictClause.toArray(new Integer[0]), backJumpLevel);  //preform backjump
+            clearQueue(); //clear the propagation queue since we backtracked
+            addAndPropagate(solvedLits.getLastOfLastDecisionLevel()); // propagate the literal we concluded from backjump
+            addClause(conflictClause); // learn the conflict clause
     }
 
+    /**
+     * Attempts to add a clause to the clause set. If the clause is already contained in the set, it does not add it.
+     * @param clause Clause to be added
+     */
     private void addClause(List<Integer> clause){
         if(cs.containsClause(clause)){
-            return;
-        }
-
-        int ADDED_CLAUSE_MAX_SIZE = 9999;
-        if(clause.size() > ADDED_CLAUSE_MAX_SIZE){
             return;
         }
         cs.addClause(clause);
@@ -320,18 +330,23 @@ public class CNFSolver {
         watchedList.addNewWatched(watchedLits);
     }
 
+    /**
+     * Propagates the next literal off the top of the propagation queue.
+     * @return null if there were no conflicts found. The values of the literals in the clause that is conflicting otherwise.
+     */
     private Integer[] propagateNextLitInQueue(){
+
         LitSolution litToBePropagated = propagateQueue.remove(propagateQueue.size()-1);// pop form the queue
         Integer[] wrongClause = null;
         if(solvedLits.contains(litToBePropagated.negation())) {//if complement of literal is within solution, fail. Do not propagate
             return litToBePropagated.reason;
         }
-        for(Integer clauseIndex: new ArrayList<>(watchedList.getClausesWithWatchedLit(-litToBePropagated.literal))){
+        for(Integer clauseIndex: new ArrayList<>(watchedList.getClausesWithWatchedLit(-litToBePropagated.literal))){//for each clause that has the negation of the literal we are propagating
             Integer[] clauseToReselect = cs.getClause(clauseIndex);
             int newLitToBeWatched = -1;
             boolean wasReselected = false;
-            for (Integer lit : clauseToReselect) {
-                if (!watchedList.contains(clauseIndex, lit) && !solvedLits.contains(-lit)) {
+            for (Integer lit : clauseToReselect) { // tries to reselect the watched literal, if it was not able to, wasReselected remains false
+                if (!watchedList.contains(clauseIndex, lit) && !solvedLits.contains(-lit)) { //we can reselect if the candidate (newLitToBeWatched) is non-false and is not already being watched
                     newLitToBeWatched = lit;
                     wasReselected = true;
                     break;
@@ -339,62 +354,79 @@ public class CNFSolver {
             }
             if(!wasReselected){
                 List<Integer> lits = new ArrayList<>(watchedList.getWatchedLitsInClause(clauseIndex));
-
-                if(lits.size() == 2){
+                if(lits.size() == 2){ // if the clause has two watched (if length of the clause is >= 2)
                     Integer lit1 = lits.get(0);
                     Integer lit2 = lits.get(1);
                     if(!solvedLits.contains(lit1) && !solvedLits.contains(-lit1)){ // if lit1 was unassigned, then this clause is unit
                         addAndPropagate(new LitSolution(lit1, clauseToReselect));
-                    } else if(!solvedLits.contains(lit2) && !solvedLits.contains(-lit2)){
+                    } else if(!solvedLits.contains(lit2) && !solvedLits.contains(-lit2)){ // if lit2 was unassigned, then the clause is unit
                         addAndPropagate(new LitSolution(lit2, clauseToReselect));
-                    } else if(solvedLits.contains(-lit1) && solvedLits.contains(-lit2)){
+                    } else if(solvedLits.contains(-lit1) && solvedLits.contains(-lit2)){ //if both lits are falsified and we weren't able to reselect, then this clause is falsified by the assignemnt
                         wrongClause = clauseToReselect;
                     }
                 } else {
-                    if(lits.size() == 1){
-                        if(solvedLits.contains(-lits.get(0))){
+                    if(lits.size() == 1){ // if there is only one watched lit in  the clause...
+                        if(solvedLits.contains(-lits.get(0))){// and that literal is falsified, then this clause is conflicting
                             wrongClause = clauseToReselect;
                         }
                     }else {
-                        throw new RuntimeException("wtf");
+                        throw new RuntimeException("0 length clause found, should not be possible");
                     }
                 }
-            } else {
+            } else { //if it was reselected, apply it by removing the old and adding the new
                 watchedList.removeWatched(clauseIndex, -litToBePropagated.literal);
                 watchedList.addWatched(clauseIndex, newLitToBeWatched);
             }
         }
+        //return null if there were no conflicts, and the wrong clause if there was
         return wrongClause;
     }
 
-    private void clearQueue(){
-        propagateQueue.clear();
-    }
-
+    /**
+     * Explains a conflict clause to the point where there is only one literal in the clause in the highest decision level (the decision).
+     * @param conflictClause Clause to be explained.
+     * @return Explained clause, which is a modified version of the parameter.
+     */
     private List<Integer> explain(List<Integer> conflictClause){
-        List<Integer> newConflict = new ArrayList<>(conflictClause);
-        int highestDLInConflict = solvedLits.getDLof(new LitSolution(solvedLits.getHighestLiteralOf(newConflict)));
+        List<Integer> newConflict = new ArrayList<>(conflictClause); // make a copy of the conflict since we will be modifying it
+        int highestDLInConflict = solvedLits.getDLof(new LitSolution(solvedLits.getHighestLiteralOf(newConflict))); //get the decision level of the highest lit  in newConflict
+        //following lines transform the decision level of highest in conflict to a List of Integers
         List<Integer> highestDLList = new ArrayList<>();
         for(LitSolution lit: solvedLits.getDecisionLevel(highestDLInConflict)){
             highestDLList.add(lit.literal);
         }
-        while(countNumSimilarities(newConflict, highestDLList) >1 /*&& count < 50*/){
-            Integer resolveLiteral = getLitFromClauseInDL(newConflict, highestDLInConflict);
-            Integer[] reason = solvedLits.getReasonFor(-resolveLiteral);
+
+
+        while(countNumSimilarities(newConflict, highestDLList) >1){ //keep trying to explain while there  is more than one literal in the highest decision level
+            Integer resolveLiteral = getLitFromClauseInDL(newConflict, highestDLInConflict); //get a non-decision literal from  the highest level
+            Integer[] reason = solvedLits.getReasonFor(-resolveLiteral);//get the reason for that literal
             if(reason == null){
                 return newConflict;
             }
-            List<Integer> reasonClause =Arrays.asList(reason);
-            newConflict = mergeClauses(newConflict, reasonClause, resolveLiteral);
+            List<Integer> reasonClause = Arrays.asList(reason);
+            newConflict = mergeClauses(newConflict, reasonClause, resolveLiteral); //resolve around that literal (explain)
 
         }
         return newConflict;
     }
 
-    private Integer getLitFromClauseInDL(List<Integer> newConflict, int dl) {
+    /**
+     * Clears the propagation queue.
+     */
+    private void clearQueue(){
+        propagateQueue.clear();
+    }
+
+    /**
+     * Gets a literal from the specified clause in a certain decision level (cannot be the decision literal).
+     * @param clause Clause whose literal is going to be extracted.
+     * @param dl Desired decision level for the literal.
+     * @return Literal in the specified  clause that is also in the decision level specified.
+     */
+    private Integer getLitFromClauseInDL(List<Integer> clause, int dl) {
         List<LitSolution> highestDLList = new ArrayList<>(solvedLits.getDecisionLevel(dl));
         highestDLList.remove(0);
-        for(Integer lit: newConflict){
+        for(Integer lit: clause){
             if(highestDLList.contains(new LitSolution(-lit))){
                 return lit;
             }
@@ -402,10 +434,16 @@ public class CNFSolver {
         throw new RuntimeException("no lit found in highest DL that wasn't the decision literal");
     }
 
-    public static Integer countNumSimilarities(List<Integer> list1, List<Integer> list2) {
+    /**
+     * Counts the number of similarities between two collections of literals (with the second collection negated)
+     * @param collection Collection 1 of literals
+     * @param collection2 Collection 2 of  literals
+     * @return Count of number of similarities between the two specified collections
+     */
+    private static Integer countNumSimilarities(Collection<Integer> collection, Collection<Integer> collection2) {
         int count = 0;
-        for (Integer num : list1) {
-            if (list2.contains(-num)) {
+        for (Integer num : collection) {
+            if (collection2.contains(-num)) {
                 count++;
             }
         }
@@ -413,10 +451,11 @@ public class CNFSolver {
     }
 
     /**
-     *
-     * @param clauseOne contains lit
-     * @param clauseTwo contains -lit
+     * Does a resolution of the two specified clauses around the specified literal
+     * @param clauseOne First clause that must contain lit
+     * @param clauseTwo Second clause that must contain -lit
      * @param lit literal to be resolved around
+     * @return Resolved clause
      */
     public static ArrayList<Integer> mergeClauses(List<Integer> clauseOne, List<Integer> clauseTwo, int lit){
         Set<Integer> result = new HashSet<>();
@@ -429,19 +468,28 @@ public class CNFSolver {
         return new ArrayList<>(result);
 
     }
+
+    /**
+     * Checks to see if a restart is applicable given the timing.
+     * If so, preforms a restart which resets M except for the first decision level.
+     */
     private void restartIfApplicable(){
         if(System.currentTimeMillis() - lastRestart <= RESTART_TIME_MILLIS){ //see if we meet restart requirements
             return;
         }
         clearQueue();
-        List<LitSolution> firstLevel = solvedLits.getDecisionLevel(0);
+        // manage restart times
         RESTART_TIME_MILLIS *= 1.5;
         if(RESTART_TIME_MILLIS >= MAX_RESTART_TIME){
             RESTART_TIME_MILLIS = MIN_RESTART_TIME;
         }
+
+        //save the first decision  level
+        List<LitSolution> firstLevel = solvedLits.getDecisionLevel(0);
         solvedLits = new CNFSolution(new ArrayList<>(firstLevel));
-        solvedLits = new CNFSolution(firstLevel);
+        //reset the two-watched-literals list
         this.watchedList = new WatchedList(cs);
+        //solve again
         solve();
     }
 

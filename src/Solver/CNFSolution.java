@@ -243,9 +243,12 @@ public class CNFSolution implements Iterable<LitSolution> {
     /**
      * Returns the second-highest decision level  literal with respect to this M
      * @param clause List of literals whose second-highest decision level will be determined
-     * @return Index of second-highest decision level in M. Or, if the size of the list of literals is 1, returns the decision level immediately before that literal.
+     * @return Index of second-highest decision level in M. Or, if the size of the list of literals is 1, returns the decision level immediately before that literal. Returns -1 if the provided clause is null
      */
     public int getSecondHighestDLinClause(List<Integer> clause){
+        if(clause == null){
+            return -1;
+        }
         if(clause.size() == 1){
             return getDLof(new LitSolution(clause.get(0))) -1;
         }
