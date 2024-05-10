@@ -1,8 +1,10 @@
-package FirstAttempt;
+package Solver;
 
-import java.util.Arrays;
 import java.util.Objects;
-
+/**
+ *  * @author Joshua Bergthold
+ *  * @author Brayden Hambright
+ */
 public class LitSolution implements Comparable<LitSolution> {
 
     public Integer literal;
@@ -32,10 +34,6 @@ public class LitSolution implements Comparable<LitSolution> {
     @Override
     public String toString(){
         return literal.toString();
-    }
-
-    public String toLongString(){
-        return literal.toString() + Arrays.toString(reason);
     }
 
     public LitSolution negation(){

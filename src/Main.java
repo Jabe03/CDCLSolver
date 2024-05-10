@@ -1,15 +1,17 @@
-import FirstAttempt.CNFSolution;
-import FirstAttempt.CNFSolver;
-import FirstAttempt.LitSolution;
 import Reader.CNFReader;
 import Reader.ClauseSet;
+import Solver.CNFSolution;
+import Solver.CNFSolver;
+import Solver.LitSolution;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static java.lang.Math.max;
-
-public class main{
+/**
+ * @author Joshua Bergthold
+ * @author Brayden Hambright
+ */
+public class Main {
 
     public static void main(String[] args)  {
         if(args.length == 1){
@@ -41,25 +43,6 @@ public class main{
 
 
     public static boolean solutionSatisfies(CNFSolution sol, ClauseSet clauseSet){ //checks to make sure solution provided satisfies all clauses
-        List<Integer[]> set = clauseSet.getClauses();
-        boolean satisfied = true;
-        for(int i  = 0; i < set.size(); i++){
-            List<Integer> clist = Arrays.asList(set.get(i));
-            boolean clauseIsSat = false;
-            for(LitSolution lit: sol){
-                if (clist.contains(lit.literal)) {
-                    clauseIsSat = true;
-                    break;
-                }
-            }
-            if(!clauseIsSat){
-                System.out.println("Clause " + (i) + " is unsatisfied: " + clist);
-                satisfied = false;
-            }
-        }
-        return satisfied;
-    }
-    public static boolean solutionSatisfies(List<LitSolution> sol, ClauseSet clauseSet){ //checks to make sure solution provided satisfies all clauses
         List<Integer[]> set = clauseSet.getClauses();
         boolean satisfied = true;
         for(int i  = 0; i < set.size(); i++){

@@ -38,7 +38,6 @@ public class CNFReader {
         try{
             tsm = new Scanner(f);
         } catch (FileNotFoundException e){
-            //System.out.println(f.getPath() + " was not recognized as a file, looking in  other directory (SAT/UNSAT)");
             return null;
         }
 
@@ -46,28 +45,14 @@ public class CNFReader {
     }
 
 
-
-    public static ClauseSet readSATFile(String name){
-        return readFile(name, true);
-    }
-
-    public static ClauseSet readUNSATFile(String name){
-        return readFile(name, false);
-    }
-
     private static ClauseSet getClauses(Scanner tsm){
         ArrayList<Integer[]> clauses = new ArrayList<>();
         int numLits = 0;
         while(tsm.hasNextLine()){
-
             String line = tsm.nextLine();
-
             if(line.startsWith("p")){
                 String[] args = line.split(" ");
                 numLits = Integer.parseInt(args[2]);
-
-            } else if(line.startsWith("c")){
-                //do nothing
             } else {
                 Scanner minitsm = new Scanner(line);
                 LinkedList<Integer> literals = new LinkedList<>();

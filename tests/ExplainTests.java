@@ -1,6 +1,6 @@
-import FirstAttempt.CNFSolution;
-import FirstAttempt.CNFSolver;
-import FirstAttempt.LitSolution;
+import Solver.CNFSolution;
+import Solver.CNFSolver;
+import Solver.LitSolution;
 import Reader.CNFReader;
 import Reader.ClauseSet;
 import org.junit.Test;
@@ -88,7 +88,7 @@ public class ExplainTests {
                 316, -317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329
                 , 289);
         sol.addToLastDecisionLevel(sols);
-        assertTrue(main.solutionSatisfies(sol, cs));
+        assertTrue(Main.solutionSatisfies(sol, cs));
 
     }
 

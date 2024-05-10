@@ -1,12 +1,14 @@
-package FirstAttempt;
+package Solver;
 
 import Reader.ClauseSet;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * @author Joshua Bergthold
+ * @author Brayden Hambright
+ */
 public class WatchedList {//class to keep track of which literals are being watched in each clause (two watched literals)
 
     ArrayList<Integer>[] positiveWatched;//keeps track of positive watched literals
@@ -40,9 +42,7 @@ public class WatchedList {//class to keep track of which literals are being watc
 
         for (int i = 0; i < clauses.size(); i++) {
             Integer[] clause = clauses.get(i);
-            if (clause.length == 0) {//if the clause is empty, error
-                throw new RuntimeException("NAUIUUURRRRR");
-            } else if (clause.length == 1) {//if the clause has length 1, add only that literal to watched literals
+           if (clause.length == 1) {//if the clause has length 1, add only that literal to watched literals
                 addWatched(i, clause[0]);
             } else {//otherwise, add the first two literals to watched lits
                 addWatched(i, clause[0]);
@@ -135,21 +135,16 @@ public class WatchedList {//class to keep track of which literals are being watc
     }
 
     public void addNewWatched(List<Integer> watchedLits) {
-        //System.out.println("adding watched " + watchedLits);
         if(watchedLits.size() > 2){
             throw new RuntimeException("Tried to add an invalid number of literals to watchedList: " + watchedLits);
         }
         if(watchedLits.size() == 0){
-            //System.out.println("Tried to add the empty clause");
             return;
         }
         watchedLitsInClauses.add(new ArrayList<>());
-        //if(watchedLits.size() == 1) {
         addWatched(watchedLitsInClauses.size() - 1, watchedLits.get(0));
-        // }
         if(watchedLits.size() == 2){
             addWatched(watchedLitsInClauses.size()-1, watchedLits.get(1));
         }
-        //System.out.println("done");
     }
 }

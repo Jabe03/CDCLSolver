@@ -1,4 +1,4 @@
-import FirstAttempt.CNFSolver;
+import Solver.CNFSolver;
 import Reader.CNFReader;
 import org.junit.Rule;
 import org.junit.Test;
