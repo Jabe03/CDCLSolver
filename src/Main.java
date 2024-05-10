@@ -15,7 +15,6 @@ public class Main {
 
     public static void main(String[] args)  {
         if(args.length == 1){
-
             testCNFSolver(args[0]);
         } else{
             String[] samples = new String[]{

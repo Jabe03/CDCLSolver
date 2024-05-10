@@ -330,7 +330,7 @@ public class CNFSolution implements Iterable<LitSolution> {
         b.delete(b.length()-1, b.length());
 
         if(satisfiability.equals("undecided")){
-            b.append("\nc Timed out in ").append(CNFSolver.TIMEOUT).append("ms");
+            b.append("\nc Timed out");
         }
         return b.toString();
     }

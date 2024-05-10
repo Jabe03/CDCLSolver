@@ -6,99 +6,160 @@ import java.util.*;
 
 
 /**
- *  * @author Joshua Bergthold
- *  * @author Brayden Hambright
+ * CDCL-style solver for boolean satisfiability problems
+ * @author Joshua Bergthold
+ * @author Brayden Hambright
  */
 public class CNFSolver {
-    private static final long MIN_RESTART_TIME = 25;
-    private static final long MAX_RESTART_TIME = 2000;
+    /**
+     * Time, in milliseconds, that the solver is allowed to run for in a single execution of solve().
+     * Times out and returns with undecided if this limit is exceeded.
+     */
+    public static long TIMEOUT = 60 * 1000L;
+
+
+    /**
+     * Start time of the solving algorithm execution
+     */
+    private long startTime;
+    /**
+     * Time, in milliseconds, that the solver is allowed to run before preforming an internal restart.
+     * Cycles through MIN_RESTART_TIME and MAX_RESATRT_TIME.
+     * Starts at MIN_RESTART_TIME and gets 50% each restart until hitting the MAX_RESTART_TIME, then resets back down to MIN_RESTART_TIME.
+     */
     private long RESTART_TIME_MILLIS = MIN_RESTART_TIME;
 
-    public static long TIMEOUT = 3000000L;
+    /**
+     * Maximum time allotted for restarts.
+     */
+    private static final long MAX_RESTART_TIME = 2000;
+    /**
+     * Minimum time allotted for restarts (also the starting time).
+     */
+    private static final long MIN_RESTART_TIME = 25;
+    /**
+     * Last time the solver preformed a restart
+     */
+    private long lastRestart;
+    /**
+     * Different decision types that were tested in development.
+     */
     private static final String[] DECISION_TYPES = new String[]{"most_positive_occurrences", "most_negative_occurrences", "lowest_num", "random_selection", "random_from_shortest_literal"};
+    /**
+     * The choice of which decision type to use.
+     */
     private static final String DECISION_TYPE = DECISION_TYPES[3];
+    /**
+     * The current partial assignment M.
+     */
     private CNFSolution solvedLits;
+
+    /**
+     * The current clause set that is being solved for satisfiability.
+     */
     private ClauseSet cs;
+
+    /**
+     * Two-watched-literals scheme propagation queue
+     */
+    private final ArrayList<LitSolution> propagateQueue;
+    /**
+     * Two-watched-literals scheme data structure
+     */
     private WatchedList watchedList;
 
+    /**
+     * Random object used for generating decisions
+     */
     private final Random r;
 
-    private final ArrayList<LitSolution> propagateQueue;
-
-
-
-
+    /**
+     * Creates a CNFSolver object. Before solving, you must assign the clause set with setClauseSet() as well
+     */
     public CNFSolver(){
-        propagateQueue  = new ArrayList<>();
+        propagateQueue = new ArrayList<>();
         r = new Random();
+        startTime = -1;
     }
 
+    /**
+     * Primes the Solver to solve a clause set
+     * @param cs Clause set to be solved
+     */
     public void setClauseSet(ClauseSet cs){
         this.cs = cs;
-        this.watchedList = new WatchedList(cs);
+
         this.solvedLits = new CNFSolution();
     }
 
+    /**
+     * @return The current solution to the clause set
+     */
     public CNFSolution getSolution(){
         return solvedLits;
     }
 
 
-
-
+    /**
+     * Solves the clause set for its satisfiability or unsatisfiability
+     * Solution is acquired from getSolution() after solve() terminates
+     */
     public void solve(){//main function to solve
-
-        long last = System.currentTimeMillis();
         if(this.cs == null){
-            throw new RuntimeException();
+            throw new RuntimeException("Clause set was not initialized before solving");
         }
+        if(startTime == -1){ //If first call to start, this is the starting time of the algorithm
+            startTime = System.currentTimeMillis();
+        }
+        lastRestart = System.currentTimeMillis(); // save this time for calculating the restart
+
+        this.watchedList = new WatchedList(cs); // initialize Two-watched-literals list
+        propagateQueue.addAll(solvedLits.getDecisionLevel(0)); // if M already has something in first decision level, propagate it
         List<LitSolution> pureLits = watchedList.getPureLiterals();
-        addAndPropagate(pureLits);
-        Collections.sort(pureLits);
-        propagateQueue.addAll(solvedLits.getDecisionLevel(0));
-        if (watchedList.isEmpty()){//checks for empty case
+        addAndPropagate(pureLits); // propagate all pure literals in clause set
+
+        if (watchedList.isEmpty()){//checks for empty clause case
             solvedLits.setSatisfiability(false);
         }
+
+        //Runtime loop
         while(!solvedLits.isSolved()){//while the solution isn't found...
-            long now = System.currentTimeMillis();
-            if(now - last > RESTART_TIME_MILLIS){
-                restart();
+            if(checkTimeout()){
                 return;
             }
 
-            if(!propagateQueue.isEmpty()) {//propagate if there are literals we can propagate
-                LitSolution litToBePropagated = propagateQueue.remove(propagateQueue.size()-1);//
-                if(solvedLits.contains(litToBePropagated.negation())){//if complement of literal is within solution, fail. Do not propagate
-                    Integer[] wrongClause =  litToBePropagated.reason;//solvedLits.getReasonFor(litToBePropagated.literal);
+            while(!propagateQueue.isEmpty()) {//propagate if there are literals we can propagate
+                Integer[] wrongClause = propagateNextLitInQueue();
+                if(wrongClause != null){ //if there was a wrong clause, fail because of that clause
                     fail(wrongClause);
-                    if(solvedLits.isSolved()){
-                        return;
-                    }
-                } else {
-                        Integer[] wrongClause = propagate(litToBePropagated);
-                        if(wrongClause != null){
-                            fail(wrongClause);
-                        }
-
-                }
-            }else { //if the propagate queue is empty, make a decision
-                Integer decision = decide();
-                if (decision == null) {//if there is no decision to be made
-                    int wrongClause = cs.assignmentSatisfiesClauseSet(solvedLits);
-                    if (wrongClause == -1) {//check if the solution is solved, if yes, the cnf is satisfiable
-                        solvedLits.setSatisfiability(true);
-                        return;
-                    }
-                    fail(cs.getClause(wrongClause));
-
-                } else {
-                    solvedLits.addDecisionLevel();
-                    addAndPropagate(new LitSolution(decision, null));
                 }
             }
+            //if the propagate queue is empty, make a decision
+            interpretDecision(decide());
+            restartIfApplicable();
         }
     }
 
+    private boolean checkTimeout(){
+        long now = System.currentTimeMillis();
+
+        //see if we have timed out
+        return now - startTime > TIMEOUT;
+    }
+    private void interpretDecision(Integer decision){
+        if (decision == null) {//if there is no decision to be made (there is a full assignment
+            int wrongClause = cs.assignmentSatisfiesClauseSet(solvedLits);
+            if (wrongClause == -1) {//if no clause was wrong in clause set, then it is satisfied
+                solvedLits.setSatisfiability(true);
+                return;
+            }
+            fail(cs.getClause(wrongClause));
+
+        } else {
+            solvedLits.addDecisionLevel();
+            addAndPropagate(new LitSolution(decision, null));
+        }
+    }
     public void addAndPropagate(Collection<LitSolution> lits){
         for (LitSolution lit : lits) {
             addAndPropagate(lit);
@@ -209,7 +270,6 @@ public class CNFSolver {
         }
 
     }
-    //private List
     public Integer decide(){//Pick which value it is we want to guess/decide
             return decide(DECISION_TYPE);
     }
@@ -217,11 +277,6 @@ public class CNFSolver {
 
 
     private void fail(Integer[] wrongClause){//Clear propagate queue if failed and backtrack
-//        if(wrongClause == null){
-//            solvedLits.chronologicalBacktrack();
-//            clearQueue();
-//            addAndPropagate(solvedLits.getLastOfLastDecisionLevel());
-//        } else {
             List<Integer> originalConflict = Arrays.asList(wrongClause);
             List<Integer> conflictClause = explain(originalConflict);
             if(conflictClause == null){
@@ -238,7 +293,6 @@ public class CNFSolver {
             clearQueue();
             addAndPropagate(solvedLits.getLastOfLastDecisionLevel());
             addClause(conflictClause);
-        //}
     }
 
     private void addClause(List<Integer> clause){
@@ -266,8 +320,12 @@ public class CNFSolver {
         watchedList.addNewWatched(watchedLits);
     }
 
-    private Integer[] propagate(LitSolution litToBePropagated){
+    private Integer[] propagateNextLitInQueue(){
+        LitSolution litToBePropagated = propagateQueue.remove(propagateQueue.size()-1);// pop form the queue
         Integer[] wrongClause = null;
+        if(solvedLits.contains(litToBePropagated.negation())) {//if complement of literal is within solution, fail. Do not propagate
+            return litToBePropagated.reason;
+        }
         for(Integer clauseIndex: new ArrayList<>(watchedList.getClausesWithWatchedLit(-litToBePropagated.literal))){
             Integer[] clauseToReselect = cs.getClause(clauseIndex);
             int newLitToBeWatched = -1;
@@ -371,7 +429,10 @@ public class CNFSolver {
         return new ArrayList<>(result);
 
     }
-    private void restart(){
+    private void restartIfApplicable(){
+        if(System.currentTimeMillis() - lastRestart <= RESTART_TIME_MILLIS){ //see if we meet restart requirements
+            return;
+        }
         clearQueue();
         List<LitSolution> firstLevel = solvedLits.getDecisionLevel(0);
         RESTART_TIME_MILLIS *= 1.5;
