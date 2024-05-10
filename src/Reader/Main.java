@@ -1,3 +1,5 @@
+package Reader;
+
 import Reader.CNFReader;
 import Reader.ClauseSet;
 import Solver.CNFSolution;

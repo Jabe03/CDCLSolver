@@ -26,7 +26,6 @@ public class CNFReader {
 
     public static ClauseSet readFile(String name){
         ClauseSet result = readFile(name, true);
-
         if(result == null){
             return readFile(name, false);
         }

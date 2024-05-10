@@ -1,3 +1,4 @@
+import Reader.Main;
 import Solver.CNFSolution;
 import Solver.CNFSolver;
 import Solver.LitSolution;
